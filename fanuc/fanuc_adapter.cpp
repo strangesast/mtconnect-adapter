@@ -17,7 +17,6 @@
 #include "internal.hpp"
 #include "fanuc_adapter.hpp"
 #include "minIni.h"
-#include <excpt.h>
 
 FanucAdapter::FanucAdapter(int aPort)
   : Adapter(aPort), mAvail("avail"), mMessage("message"), mPartCount("part_count"),
@@ -112,11 +111,10 @@ void FanucAdapter::innerGatherDeviceData()
 
 void FanucAdapter::gatherDeviceData()
 {
-  __try {
+  try {
     innerGatherDeviceData();
   }
-
-  __except(EXCEPTION_EXECUTE_HANDLER) {
+  catch (...) {
       gLogger->error("Unhandled structured exception occurred during gathering device data, disconnecting.");
       disconnect();
   }
@@ -275,6 +273,10 @@ void FanucAdapter::connect()
     return;
           
   printf("Connecting to Machine at %s and port %d\n", mDeviceIP, mDevicePort);
+  long level = 3;
+  std::string filename = "focas.log";
+  const char *c = filename.c_str();
+  short log = ::cnc_startupprocess(level, c);
   short ret = ::cnc_allclibhndl3(mDeviceIP, mDevicePort, 10, &mFlibhndl);
   printf("Result: %d\n", ret);
   if (ret == EW_OK) 
@@ -290,7 +292,7 @@ void FanucAdapter::connect()
   {
     mConnected = false;
     unavailable();
-    Sleep(5000);
+    sleep(5);
   }  
 }
 
@@ -299,6 +301,7 @@ void FanucAdapter::reconnect()
   if (mConnected)
   {
     cnc_freelibhndl(mFlibhndl);  
+    cnc_exitprocess();
     mConnected = false;
 
     connect();
