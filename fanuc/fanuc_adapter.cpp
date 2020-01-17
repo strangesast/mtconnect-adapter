@@ -131,6 +131,24 @@ void FanucAdapter::disconnect()
   }
 }
 
+int strnicmp(const char* s1, const char* s2, size_t n) {
+#ifdef HAVE_STRNCASECMP
+  return strncasecmp(s1, s2, n);
+#else
+  if (n == 0)
+    return 0;
+
+  do {
+    if (tolower((unsigned char) *s1) != tolower((unsigned char) *s2++))
+      return (int)tolower((unsigned char)*s1) -
+	(int) tolower((unsigned char) *--s2);
+    if (*s1++ == 0)
+      break;
+  } while (--n != 0);
+
+  return 0;
+#endif /* !HAVE_STRNCASECMP */
+}
 
 void FanucAdapter::configMacrosAndPMC(const char *aIniFile)
 {
@@ -145,7 +163,7 @@ void FanucAdapter::configMacrosAndPMC(const char *aIniFile)
 
   char dnc[8];
   ini_gets("focus", "dnc", "yes", dnc, 8, aIniFile);
-  mAllowDNC = _strnicmp(dnc, "no", 2) != 0;
+  mAllowDNC = strnicmp(dnc, "no", 2) != 0;
   
   if (!mAllowDNC)
     printf("Disabling retrieval of program header\n");
