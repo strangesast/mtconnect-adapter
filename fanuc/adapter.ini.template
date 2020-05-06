@@ -1,0 +1,12 @@
+[adapter]
+port = ${ADAPTER_PORT}
+service = ${ADAPTER_NAME}
+
+[focus]
+host = ${FOCUS_HOST}
+
+[macros]
+
+[pmc]
+SspeedOvr = 30
+Fovr = 12

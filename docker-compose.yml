@@ -4,3 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "7878:7878"
+    environment:
+      - ADAPTER_PORT=7878
+      - ADAPTER_NAME=MTC Focus 1
+      - FOCUS_HOST=127.0.0.1
