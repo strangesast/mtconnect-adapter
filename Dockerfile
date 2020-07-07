@@ -1,6 +1,8 @@
 from debian as base
 
 arg TARGETPLATFORM
+# irritatingly necessary when not using buildx?
+env TARGETPLATFORM=$TARGETPLATFORM
 run apt-get update && apt-get install -y libc6-dev
 copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
 run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
