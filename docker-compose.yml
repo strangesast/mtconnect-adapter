@@ -1,12 +1,19 @@
 version: '3.7'
 services:
+#  agent:
+#    build:
+#      context: .
+#      dockerfile: docker/agent/Dockerfile
+#    network_mode: 'host'
   adapter:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "7878:7878"
+    network_mode: 'host'
+    #ports:
+    #  - "7878:7878"
+    entrypoint: /build/entrypoint.sh
     environment:
       - ADAPTER_PORT=7878
       - ADAPTER_NAME=MTC Focus 1
-      - FOCUS_HOST=127.0.0.1
+      - FOCUS_HOST=10.0.0.200

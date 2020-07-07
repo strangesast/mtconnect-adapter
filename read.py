@@ -2,7 +2,11 @@ import asyncio
 
 async def tcp_echo_client():
     reader, writer = await asyncio.open_connection(
-        '127.0.0.1', 7878)
+        'localhost', 7878)
+
+    #writer.write('* PING\n'.encode('utf8'))
+    writer.write('* manufacturer: XXX'.encode())
+    await writer.drain()
 
     async for line in reader:
         print(f'line: {line}')

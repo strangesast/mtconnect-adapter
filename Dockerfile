@@ -1,14 +1,13 @@
-FROM debian
+FROM debian as build
 
 RUN apt-get update && apt-get install -y git \
   wget \
   gcc-multilib \
   g++-multilib \
   build-essential \
-  gettext-base \
   && dpkg --add-architecture i386
 
-WORKDIR /fanuc
+WORKDIR /build
 
 COPY fanuc/libfwlib32.so.1.0.0 /usr/local/lib/libfwlib32.so
 COPY fanuc/Fwlib32.h fanuc/fanuc.xml fanuc/*.cpp fanuc/*.hpp src/*.cpp src/*.hpp minIni_07/*.c minIni_07/*.h ./
@@ -32,6 +31,17 @@ RUN ldconfig && g++ \
   FanucAdapter.cpp \
   -o adapter -lfwlib32 -lpthread 
 
+RUN apt-get update && apt-get install -y gettext-base
 COPY entrypoint.sh fanuc/adapter.ini.template ./
 
-ENTRYPOINT ["/fanuc/entrypoint.sh"]
+#FROM debian
+#
+#WORKDIR /
+#
+#RUN apt-get update && apt-get install -y gettext-base && dpkg --add-architecture i386
+#
+#COPY --from=build /build/adapter /adapter
+#
+#COPY entrypoint.sh fanuc/adapter.ini.template ./
+
+#ENTRYPOINT ["entrypoint.sh"]

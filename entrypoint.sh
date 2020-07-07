@@ -1,3 +1,3 @@
 #!/bin/bash
-envsubst < adapter.ini.template > /fanuc/adapter.ini
+envsubst < adapter.ini.template > adapter.ini
 ./adapter debug adapter.ini
