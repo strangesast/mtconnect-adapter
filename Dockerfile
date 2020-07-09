@@ -1,6 +1,6 @@
 from debian as base
 
-arg TARGETPLATFORM
+arg TARGETPLATFORM=linux/amd64
 # irritatingly necessary when not using buildx?
 env TARGETPLATFORM=$TARGETPLATFORM
 run apt-get update && apt-get install -y libc6-dev
