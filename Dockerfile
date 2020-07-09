@@ -3,7 +3,7 @@ from debian as base
 arg TARGETPLATFORM=linux/amd64
 # irritatingly necessary when not using buildx?
 env TARGETPLATFORM=$TARGETPLATFORM
-run apt-get update && apt-get install -y libc6-dev
+run apt-get update && apt-get install -y libc6-dev gettext-base
 copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
 run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
 
@@ -14,6 +14,7 @@ copy . .
 run mkdir build && cd build && cmake .. && make
 
 from base
-run mkdir -p /var/log/adapter
+volume /var/log/adapter
 copy --from=builder /adapter/build/fanuc/adapter_fanuc /adapter_fanuc
-cmd ["/adapter_fanuc", "--help"]
+copy fanuc/default.ini entrypoint.sh /
+entrypoint /entrypoint.sh
