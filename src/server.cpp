@@ -169,7 +169,7 @@ void Server::readFromClients()
     unsigned int now = getTimestamp();
     if (client->mHeartbeats)
     {
-      if (deltaTimestamp(now, client->mLastHeartbeat) > (unsigned int) mTimeout)
+      if (client->mLastHeartbeat + mTimeout < now)
       {
         gLogger->warning("Client has not sent heartbeat in over %d ms, disconnecting",
           mTimeout);
@@ -306,16 +306,3 @@ unsigned int Server::getTimestamp()
   return ts;
 #endif
 }
-
-unsigned int Server::deltaTimestamp(unsigned int a, unsigned int b)
-{
-  // Assume we are doing a - b where a should be larger, if it is not
-  // we have a wrap-around
-  unsigned int res;
-  if ( a >= b )
-    res = a - b;
-  else // b > a, Compute the distance from the end:
-  res = a + (0xFFFFFFFF - b);
-  return res;
-}
-
