@@ -4,10 +4,10 @@ from debian as base
 arg TARGETPLATFORM
 
 # when using default builder:
-#arg TARGETPLATFORM=linux/amd64
-#env TARGETPLATFORM=$TARGETPLATFORM
+arg TARGETPLATFORM=linux/amd64
+env TARGETPLATFORM=$TARGETPLATFORM
 
-run apt-get update && apt-get install -y libc6-dev gettext-base
+run apt-get update && apt-get install -y libc6-dev gettext-base netcat
 run echo $TARGETPLATFORM
 copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
 run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
@@ -21,5 +21,6 @@ run mkdir build && cd build && cmake .. && make
 from base
 volume /var/log/adapter
 copy --from=builder /adapter/build/fanuc/adapter_fanuc /adapter_fanuc
-copy fanuc/default.ini entrypoint.sh /
+copy fanuc/default.ini healthcheck.sh entrypoint.sh /
+healthcheck cmd /healthcheck.sh
 entrypoint /entrypoint.sh
