@@ -9,14 +9,6 @@
 
 #ifndef _INC_FWLIB
 #define _INC_FWLIB
-/*
-
-  This library is proprietary software complied by GCC through Eligible Compilation Process.
-
-  As for GCC and Eligible Compilation Process, 
-  see <http://www.gnu.org/licenses/gcc-exception-3.1.html>.
-
-*/
 
 #if defined (_WIN32) ||  defined (_WIN32_WCE)
 #include <windows.h>
@@ -24,9 +16,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-
-namespace Fwlib32
-{
 #endif
 
 #if defined (_WIN32) ||  defined (_WIN32_WCE)
@@ -44,14 +33,13 @@ namespace Fwlib32
 /*
     Axis define
 */
-/* machine information for Ethernet library for Linux */
-#if defined (F22_TYPE5)
-#define MAX_AXIS        48
-#define MAX_SPINDLE     16
-#else
-#define MAX_AXIS        32
-#define MAX_SPINDLE     8
-#endif
+/* machine information for FS160i/180i-W */
+#define HSSB_LIB
+#define FS16WD
+#define MAX_AXIS        8
+#define MAX_SPINDLE     4
+#define MAX_CNCPATH     10
+#define MAX_IFSB_LINE   3
 
 #if !defined (MAX_AXIS)
 #if defined (F22_TYPEB) || ((!defined(CNC_PPC)) && (!defined(CNC_SIM)))
@@ -2303,6 +2291,17 @@ typedef struct odbophis3 {
             short   second;     /* second */
             short   dummy;
         } rec_date;
+        struct {                                   
+            short  login_type;   /* login type */  
+            short  login_result; /* login result */
+            char   id[8];        /* login id */    
+            short  year;         /* year */        
+            short  month;        /* month */       
+            short  day;          /* day */         
+            short  hour;         /* hour */        
+            short  minute;       /* minute */      
+            short  second;       /* second */      
+        } rec_pna;               /* personal authentication */
     } u;
 } ODBOPHIS3;
 
@@ -2496,6 +2495,17 @@ volatile    char    alm_msg[64];/* alarm message */
             short   minute;     /* minute */
             short   second;     /* second */
         } rec_scrn;             /* SCREEN NUMBER*/
+        struct {                                   
+            short  login_type;   /* login type */  
+            short  login_result; /* login result */
+            char   id[8];        /* login id */    
+            short  year;         /* year */        
+            short  month;        /* month */       
+            short  day;          /* day */         
+            short  hour;         /* hour */        
+            short  minute;       /* minute */      
+            short  second;       /* second */      
+        } rec_pna;               /* personal authentication */
     } u;
 } ODBOPHIS4;
 
@@ -2840,6 +2850,19 @@ typedef struct odbfig {
     unsigned char   n_unit ;          /* numetrical unit */
     char            cb_form ;         /* figure form flag */
 } ODBFIG ;
+
+/* cnc_chktdistatus:read interference object */
+typedef struct odbshpinf {
+    short           ob_type ;         /* interference object type */
+    unsigned short  obj_no  ;         /* interference object shape number */
+} ODBSHPINF ;
+
+/* cnc_chktdistatus:read interference status */
+typedef struct odbifr {
+    long            status ;          /* interference status */
+    ODBSHPINF       obj1 ;            /* interference object1 info */
+    ODBSHPINF       obj2 ;            /* interference object2 info */
+} ODBIFR ;
 
 /*-------------*/
 /* CNC: Others */
@@ -7497,6 +7520,39 @@ typedef struct _out_adpsafe_mntinfo {
     unsigned short  DoSendPacketNumberB;
 } OUT_ADPSAFE_MNTINFO;
 
+/*------------------------------------*/
+/* NET : EtherNet/IP message function */
+/*------------------------------------*/
+
+typedef struct _eipm_prm {
+  unsigned char       State;
+  char                pad[3];
+  EIP_PMC_ADDR        CtrlAddr;
+  unsigned long       CtrlSize;
+  EIP_PMC_ADDR        DstAddr;
+  unsigned long       DstSize;
+  EIP_PMC_ADDR        TrnsAddr;
+  unsigned long       TrnsSize;
+  EIP_PMC_ADDR        RcptAddr;
+  unsigned long       RcptSize;
+} EIPM_PRM;
+
+typedef EIPM_PRM  OUT_EIPM_PRM;
+typedef EIPM_PRM  IN_EIPM_PRM;
+
+typedef struct _in_eipm_prm_flg {
+  char  State;
+  char  pad[3];
+  char  CtrlAddr;
+  char  CtrlSize;
+  char  DstAddr;
+  char  DstSize;
+  char  TrnsAddr;
+  char  TrnsSize;
+  char  RcptAddr;
+  char  RcptSize;
+} IN_EIPM_PRM_FLG;
+
 /*---------------------------*/
 /* NET : PROFIBUS function   */
 /*---------------------------*/
@@ -9579,6 +9635,19 @@ typedef struct odbrstmpinfo {
     char    u_file_name[246];
 }ODBRSTMPINFO ;
 
+/*---cnc_rstrt_lpslctblk---*/
+/* restart point mpinfo */
+typedef struct idbrstlpblkinfo{
+    short       nest_lv;
+    short       dummy;
+    struct{
+        char    prg_name[36];
+        long    c_blck_cnt;
+        short   prg_rep;
+        short   dummy;
+    }call_data[16];
+}IDBRSTLPBLKINFO ;
+
 /*---------------------*/
 /* spindle unit offset */
 /*---------------------*/
@@ -10490,6 +10559,17 @@ typedef struct currdtm {
     unsigned short  threshold ;
     long            dummy ;
 } CURRDTM ;
+typedef struct currwvtm {
+	char            state ;
+	char            dummy1[3] ;
+    unsigned short  start_date ;
+    unsigned short  start_time ;
+    unsigned short  end_date ;
+    unsigned short  end_time ;
+    long            elapsed_time ;
+    long            remaining_time ;
+    long            dummy2 ;
+} CURRWVTM ;
 typedef struct odbsoccur {
     short           mode ;
     short           table ;
@@ -10498,6 +10578,7 @@ typedef struct odbsoccur {
     CURLOAD         load ;
     CURTEMP         temp ;
     CURRDTM         rdtm ;
+    CURRWVTM        wvtm ;
 } ODBSOCCUR ;
 
 typedef struct soctlattr {
@@ -10513,6 +10594,22 @@ typedef struct soctldat {
 		REALPRM	rdata ;
 	} u ;
 } IODBSOCTLDAT ;
+/*---------------------*/
+/* CNC lock function   */
+/*---------------------*/
+/* cnc lock information */
+typedef struct odblockinfo {
+    short           limit_date[3];      /* limit date  (0:year/1:month/2:day) */
+    short           remain_days;        /* remaining days until expiration */
+    short           psw_state;          /* password setting state */
+    short           limit_state;        /* expiration state */
+    short           sys_msg_num;        /* system message number */
+    short           reserve;            /* reserve */
+} ODBLOCKINFO ;
+typedef struct odblockmsg {
+    char           usr_msg1[256];       /* user message 1 */
+    char           usr_msg2[256];       /* user message 2 */
+} ODBLOCKMSG ;
 
 #ifdef _MSC_VER
 #pragma pack(pop)
@@ -12075,6 +12172,12 @@ FWLIBAPI short WINAPI cnc_rdtdicolordata(unsigned short FlibHndl, short ob_type,
 /* write 3D interference check color data */
 FWLIBAPI short WINAPI cnc_wrtdicolordata(unsigned short FlibHndl, short ob_type, unsigned short ob_s_no, unsigned short wrt_num, char *data);
 
+/* read 3D interference status */
+FWLIBAPI short WINAPI cnc_chktdistatus(unsigned short FlibHndl, ODBIFR *ifr_status);
+
+/* read 3D interference blank figure number */
+FWLIBAPI short WINAPI cnc_rdtdiblankfigno(unsigned short FlibHndl, unsigned short *fig_no);
+
 /*-----------------------------------*/
 /* CNC: trouble diagnosis            */
 /*-----------------------------------*/
@@ -12277,6 +12380,9 @@ FWLIBAPI short WINAPI cnc_rstrseqsrch( unsigned short, long, long, short, short 
 /* search sequence number for program restart 2 */
 FWLIBAPI short WINAPI cnc_rstrseqsrch2( unsigned short, long, long, short, short, long ) ;
 
+/* read restart status */
+FWLIBAPI short WINAPI cnc_rstrdstatus( unsigned short, short * ) ;
+
 /* read output signal image of software operator's panel  */
 FWLIBAPI short WINAPI cnc_rdopnlsgnl( unsigned short, short, IODBSGNL * ) ;
 
@@ -12404,6 +12510,15 @@ FWLIBAPI short WINAPI cnc_fromput( unsigned short, void *, long * ) ;
 /* end of writing F-ROM data to CNC */
 FWLIBAPI short WINAPI cnc_fromputend( unsigned short ) ;
 
+/* start of writing F-ROM data to CNC */
+FWLIBAPI short WINAPI cnc_fromputstart2( unsigned short, short ) ;
+
+/* write F-ROM data to CNC */
+FWLIBAPI short WINAPI cnc_fromput2( unsigned short, void *, long * ) ;
+
+/* end of writing F-ROM data to CNC */
+FWLIBAPI short WINAPI cnc_fromputend2( unsigned short ) ;
+
 /* delete F-ROM data on CNC */
 FWLIBAPI short WINAPI cnc_fromremove( unsigned short, short, char * ) ;
 
@@ -12414,26 +12529,22 @@ FWLIBAPI short WINAPI cnc_getsraminfo( unsigned short, ODBSINFO * ) ;
 /* start of reading S-RAM data from CNC */
 FWLIBAPI short WINAPI cnc_sramgetstart( unsigned short, char * ) ;
 
-#ifndef CNC_PPC
 /* start of reading S-RAM data from CNC (2) */
 FWLIBAPI short WINAPI cnc_sramgetstart2( unsigned short, char * ) ;
-#endif
 
 /* read S-RAM data from CNC */
 FWLIBAPI short WINAPI cnc_sramget( unsigned short, short *, void *, long * ) ;
 
-#ifndef CNC_PPC
 /* read S-RAM data from CNC (2) */
 FWLIBAPI short WINAPI cnc_sramget2( unsigned short, short *, void *, long * ) ;
-#endif
 
 /* end of reading S-RAM data from CNC */
 FWLIBAPI short WINAPI cnc_sramgetend( unsigned short ) ;
 
-#ifndef CNC_PPC
 /* end of reading S-RAM data from CNC (2) */
 FWLIBAPI short WINAPI cnc_sramgetend2( unsigned short ) ;
 
+#ifndef CNC_PPC
 /* start of writing S-RAM data to CNC */
  FWLIBAPI short WINAPI cnc_sramputstart( unsigned short, char * ) ;
 
@@ -12452,6 +12563,28 @@ FWLIBAPI short WINAPI cnc_sramgetend2( unsigned short ) ;
 /* end of writing S-RAM data to CNC (2) */
  FWLIBAPI short WINAPI cnc_sramputend2( unsigned short ) ;
 #endif
+
+ /* start of reading F-ROM data from CNC */
+FWLIBAPI short WINAPI cnc_fromgetstart2( unsigned short, short, char * ) ;
+
+/* read F-ROM data from CNC */
+FWLIBAPI short WINAPI cnc_fromget2( unsigned short, short *, void *, long * ) ;
+
+/* end of reading F-ROM data from CNC */
+FWLIBAPI short WINAPI cnc_fromgetend2( unsigned short ) ;
+
+typedef struct tag_ODDATETIME
+{
+    short year;
+    short month;
+    short day;
+    short hour;
+    short min;
+    short sec;
+} ODDATETIME;
+
+/* end of reading F-ROM data from CNC */
+FWLIBAPI short WINAPI cnc_atbk_rdtime( unsigned short, char *, ODDATETIME * ) ;
 
 /* read number of S-RAM data kind on CNC */
 FWLIBAPI short WINAPI cnc_rdsramnum( unsigned short, short * ) ;
@@ -14698,6 +14831,12 @@ FWLIBAPI short WINAPI eth_eipsafdumperror( unsigned short, char * );
 /* make XML file for EtherNet/IP EDA funtion */
 FWLIBAPI short WINAPI eth_edaxmlout( unsigned short, short, char * );
 
+/* read parameter for EtherNet/IP Message funtion */
+FWLIBAPI short WINAPI eth_rdeipmparam( unsigned short, short, OUT_EIPM_PRM *);
+
+/* write parameter for EtherNet/IP Message funtion */
+FWLIBAPI short WINAPI eth_wreipmparam( unsigned short, short, IN_EIPM_PRM_FLG *, IN_EIPM_PRM *);
+
 /* read type for network function */
 FWLIBAPI short WINAPI net_rdtype(unsigned short, short, OUT_NETDEVPRM *);
 
@@ -15470,6 +15609,7 @@ FWLIBAPI short WINAPI cnc_rstrt_wrpnt2(unsigned short, unsigned short, IODBRSTIN
 FWLIBAPI short WINAPI cnc_rstrt_getdncprg(unsigned short, short, char *);
 FWLIBAPI short WINAPI cnc_rstrt_rdaddinfo(unsigned short, short, short *, short, long *);
 FWLIBAPI short WINAPI cnc_rstrt_rdlpmppnt(unsigned short, short, ODBRSTMPINFO *);
+FWLIBAPI short WINAPI cnc_rstrt_lpslctblk(unsigned short, IDBRSTLPBLKINFO *);
 /*---------------------*/
 /* spindle unit offset */
 /*---------------------*/
@@ -15892,6 +16032,20 @@ FWLIBAPI short WINAPI anm_rdsimuelm(unsigned short, IODBSIMUELM *);
 FWLIBAPI short WINAPI anm_rdsimuelm2(unsigned short, IODBSIMUELM2 *);
 #endif
 
+/*-------------------------------------*/
+/* iHMI machining simulation           */
+/*-------------------------------------*/
+#ifndef CNC_PPC
+FWLIBAPI short WINAPI cnc_msim_start(unsigned short);
+FWLIBAPI short WINAPI cnc_msim_end(unsigned short);
+FWLIBAPI short WINAPI cnc_msim_rewind(unsigned short);
+FWLIBAPI short WINAPI cnc_msim_rdprgname(unsigned short, char *);
+
+
+FWLIBAPI short WINAPI cnc_getvcprg(unsigned short , void* );
+#endif
+FWLIBAPI short WINAPI cnc_getupdcount(unsigned short , unsigned short , unsigned long* );
+
 /*----------------*/
 /* Block distance */
 /*----------------*/
@@ -15953,6 +16107,13 @@ FWLIBAPI short WINAPI cnc_rdsoc_tlatrr ( unsigned short, short, short*, short, s
 FWLIBAPI short WINAPI cnc_rdsoc_tldat  ( unsigned short, short, short*, short, short*, char, IODBSOCTLDAT* );
 FWLIBAPI short WINAPI cnc_wrsoc_tldat  ( unsigned short, short, short*, short, short*, IODBSOCTLDAT* );
 	
+/*---------------------*/
+/* CNC lock function   */
+/*---------------------*/
+FWLIBAPI short WINAPI cnc_cnclock_setpassword( unsigned short,char * );
+FWLIBAPI short WINAPI cnc_cnclock_rdlockinfo( unsigned short, ODBLOCKINFO * );
+FWLIBAPI short WINAPI cnc_cnclock_rdusrmsg( unsigned short, ODBLOCKMSG * );
+
 /*-------------------*/
 /* PMC Ladder screen */
 /*-------------------*/
@@ -15987,21 +16148,71 @@ FWLIBAPI short WINAPI cnc_pmclad_screen(unsigned short FwHndl, int iCommand, voi
 #ifndef CNC_PPC
 typedef struct odbdllversion {
 	struct {
-		char Name[260];
-		char FileVersion[32];
-		char ProductVersion[32];
+		TCHAR Name[260];
+		TCHAR FileVersion[32];
+		TCHAR ProductVersion[32];
 	} dll[2];
 } ODBDLLVERSION;
 
 FWLIBAPI short WINAPI cnc_getdllversion( unsigned short FwHndl, ODBDLLVERSION *vers );
 #endif
 
-/*---------------------------------------*/
-/* Linux process and thread              */
-/*---------------------------------------*/
-FWLIBAPI short WINAPI cnc_startupprocess(long, const char *);
-FWLIBAPI short WINAPI cnc_exitprocess();
-FWLIBAPI short WINAPI cnc_exitthread();
+/*--------------------------*/
+/* Parsonal  Authentication */
+/*--------------------------*/
+
+/* login logout request */
+typedef struct tag_PNA_REQ{
+    char id[8];
+    char pass[8];
+} PNA_REQ;
+
+/* read state */
+typedef struct tag_PNA_STATE{
+    unsigned short  login;
+    unsigned short  rfid;
+    char id[8];
+} PNA_STATE;
+
+/* read pna data */
+typedef struct tag_PNA_RDDATA{
+    char            operationid[8];
+    char            password [8];
+    unsigned char   rfidkey[8];
+    short           userlevel;
+    short           operationlevel;
+    short           enable;
+    short           startday[3];
+    short           endday[3];
+    short           createtime[6];
+    short           updatetime[6];
+    short           deletetime[6];
+} PNA_RDDATA;
+
+/* operate pna data */
+typedef struct tag_PNA_OPDATA{
+    char            operationid[8];
+    char            password[8];
+    unsigned char   rfidkey[8];
+    short           userlevel;
+    short           operationlevel;
+    short           enable;
+    short           startday[3];
+    short           endday[3];
+} PNA_OPDATA;
+
+/* operate encryption key */
+typedef struct tag_PNA_ENCKEY{
+    unsigned short  type;
+    unsigned char   key[8];
+} PNA_ENCKEY;
+
+FWLIBAPI short WINAPI cnc_pna_loginlogout(unsigned short, unsigned short, PNA_REQ* );
+FWLIBAPI short WINAPI cnc_pna_rdstate(unsigned short, PNA_STATE* );
+FWLIBAPI short WINAPI cnc_pna_rddata(unsigned short, unsigned short, unsigned short, char*, unsigned short*, unsigned short*, PNA_RDDATA* );
+FWLIBAPI short WINAPI cnc_pna_rdidinfo(unsigned short, unsigned short*, unsigned short*, PNA_RDDATA* );
+FWLIBAPI short WINAPI cnc_pna_opdata(unsigned short, unsigned short, PNA_OPDATA* );
+FWLIBAPI short WINAPI cnc_pna_opkey(unsigned short, PNA_ENCKEY* );
 
 /*---------------------*/
 /* Macro for Oxxxxxxxx */
@@ -16033,10 +16244,6 @@ FWLIBAPI short WINAPI cnc_exitthread();
 
 
 #ifdef __cplusplus
-} // namespace Fwlib32
-
-using namespace Fwlib32;
-
 }
 #endif
 

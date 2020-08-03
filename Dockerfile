@@ -16,6 +16,7 @@ from base as builder
 workdir /adapter
 run apt-get install -y g++ cmake
 copy . . 
+copy fanuc/fwlib32/30i/Fwlib32.h fanuc/fwlib32.h
 run mkdir build && cd build && cmake .. && make
 
 from base
