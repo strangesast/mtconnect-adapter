@@ -1,47 +1,26 @@
-FROM debian as build
+from debian as base
 
-RUN apt-get update && apt-get install -y git \
-  wget \
-  gcc-multilib \
-  g++-multilib \
-  build-essential \
-  && dpkg --add-architecture i386
+# can't use default value with buildx
+arg TARGETPLATFORM
 
-WORKDIR /build
+# when using default builder:
+arg TARGETPLATFORM=linux/amd64
+env TARGETPLATFORM=$TARGETPLATFORM
 
-COPY fanuc/libfwlib32.so.1.0.0 /usr/local/lib/libfwlib32.so
-COPY fanuc/Fwlib32.h fanuc/fanuc.xml fanuc/*.cpp fanuc/*.hpp src/*.cpp src/*.hpp minIni_07/*.c minIni_07/*.h ./
+run apt-get update && apt-get install -y libc6-dev gettext-base netcat
+run echo $TARGETPLATFORM
+copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
+run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
 
-RUN ldconfig && g++ \
-  # -mbe32 \
-  -m32 \
-  minIni.c \
-  device_datum.cpp \
-  fanuc_axis.cpp \
-  fanuc_path.cpp \
-  service.cpp \
-  condition.cpp \
-  cutting_tool.cpp \
-  string_buffer.cpp \
-  logger.cpp \
-  client.cpp \
-  server.cpp \
-  adapter.cpp \
-  fanuc_adapter.cpp \
-  FanucAdapter.cpp \
-  -o adapter -lfwlib32 -lpthread 
+from base as builder
+workdir /adapter
+run apt-get install -y g++ cmake
+copy . . 
+run mkdir build && cd build && cmake .. && make
 
-RUN apt-get update && apt-get install -y gettext-base
-COPY entrypoint.sh fanuc/adapter.ini.template ./
-
-#FROM debian
-#
-#WORKDIR /
-#
-#RUN apt-get update && apt-get install -y gettext-base && dpkg --add-architecture i386
-#
-#COPY --from=build /build/adapter /adapter
-#
-#COPY entrypoint.sh fanuc/adapter.ini.template ./
-
-#ENTRYPOINT ["entrypoint.sh"]
+from base
+volume /var/log/adapter
+copy --from=builder /adapter/build/fanuc/adapter_fanuc /adapter_fanuc
+copy fanuc/default.ini healthcheck.sh entrypoint.sh /
+healthcheck cmd /healthcheck.sh
+entrypoint /entrypoint.sh

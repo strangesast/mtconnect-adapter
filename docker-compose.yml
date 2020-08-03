@@ -1,19 +1,12 @@
 version: '3.7'
 services:
-#  agent:
-#    build:
-#      context: .
-#      dockerfile: docker/agent/Dockerfile
-#    network_mode: 'host'
   adapter:
     build:
+      args:
+        TARGETPLATFORM: linux/amd64
       context: .
       dockerfile: Dockerfile
-    network_mode: 'host'
-    #ports:
-    #  - "7878:7878"
-    entrypoint: /build/entrypoint.sh
     environment:
-      - ADAPTER_PORT=7878
-      - ADAPTER_NAME=MTC Focus 1
-      - FOCUS_HOST=10.0.0.200
+      - TARGETPLATFORM=linux/amd64
+    volumes:
+      - ./fanuc/adapter.ini:/adapter.ini
