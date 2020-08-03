@@ -3,7 +3,7 @@
 /*                                                                   */
 /* CNC/PMC Data Window Library for FOCAS                             */
 /*                                                                   */
-/* Copyright (C) 2003-2017 by FANUC CORPORATION All rights reserved. */
+/* Copyright (C) 2003-2013 by FANUC CORPORATION All rights reserved. */
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
@@ -24,9 +24,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-
-namespace Fwlib32
-{
 #endif
 
 #if defined (_WIN32) ||  defined (_WIN32_WCE)
@@ -54,20 +51,14 @@ namespace Fwlib32
 #endif
 
 #if !defined (MAX_AXIS)
-#if defined (F22_TYPEB) || ((!defined(CNC_PPC)) && (!defined(CNC_SIM)))
-#define MAX_AXIS        96
-#elif defined (F22_TYPEA)
-#define MAX_AXIS        72
-#elif defined (F22_TYPE5)
+#if defined (F22_TYPE5) || !defined(CNC_PPC)
 #define MAX_AXIS        48
 #else
 #define MAX_AXIS        32
 #endif
 #endif
 #if !defined (MAX_SPINDLE)
-#if defined (F22_TYPEB) || ((!defined(CNC_PPC)) && (!defined(CNC_SIM)))
-#define MAX_SPINDLE     24
-#elif defined (F22_TYPEA) || defined (F22_TYPE5)
+#if defined (F22_TYPE5) || !defined(CNC_PPC)
 #define MAX_SPINDLE     16
 #else
 #define MAX_SPINDLE      8
@@ -78,22 +69,6 @@ namespace Fwlib32
 
 #define ALL_AXES        (-1)
 #define ALL_SPINDLES    (-1)
-
-#if !defined (MAX_IFSB_LINE)
-#if defined(F22_TYPEA) || defined(F22_TYPEB) || ((defined(PM_H)) && (!defined(DSA_SYS))) || ((!defined(CNC_PPC)) && (!defined(CNC_SIM)))
-#define MAX_IFSB_LINE   4   /* Maximum line number */
-#else
-#define MAX_IFSB_LINE   3   /* Maximum line number */
-#endif
-#endif
-
-#if !defined (MAX_CNCPATH)
-#if defined(F22_TYPEA) || ((!defined(CNC_PPC)) && (!defined(CNC_SIM)))
-#define MAX_CNCPATH     15
-#else
-#define MAX_CNCPATH     10
-#endif
-#endif
 
 /*
     Program lock define
@@ -201,16 +176,6 @@ namespace Fwlib32
 #define MA_OPT           39
 #define ENABLE_FOCAS_DMA 40
 #define DSHOST_RD_SRCH   41
-#define BG_EDIT_CONTINUE 42
-#define BG_EDIT_GRAPH    43
-#define SEARCHWORD_PNTR  44
-#define PROG_UPLD_PROT   45
-#define POLAR_IPL_POS    46
-#define PRG_NO_RD_PROT   47
-#define TOOL_STORAGE     48
-#define PRG_FMT_CK       49
-#define NCPROG_MODE      50
-#define COMMAND_TIMEOUT  51
 #define PGLOCK_TYPE      64
 #define TLIFE_TOOL0     128
 #define OPPROG_DSP      256
@@ -974,21 +939,6 @@ typedef struct out_dsfile {
     char            info[128];  /* file infomation */
 } OUT_DSFILE;
 
-/* cnc_dsfile_req: get file list infomation */
-typedef struct in_dsfile_req {
-    char            file[256];  /* file name */
-    long            fnum;       /* file number */
-    long            offset;     /* offset */
-    short           detail;     /* comment type */
-    unsigned short  option;     /* option */
-} ODB_IN_DSFILE_REQ;
-
-/* cnc_dsstat_rdfile: get file list infomation */
-typedef struct in_stat_dsfile {
-    short   req_num;    /* request file num */
-    short   size_type;  /* size type */
-} ODB_IN_STAT_DSFILE;
-
 /* cnc_rdembedf_inf:read embedded folder information*/
 typedef struct odbembedfinf {
 	long	used_page;	/* used capacity */
@@ -1223,7 +1173,6 @@ typedef struct tagODBVOLC {
 
 /* cnc_rdrotvolc : read rotate volumetric compensation data */
 /* cnc_wrrotvolc : write rotate volumetric compensation data */
-/* cnc_wrrotvolc2 : write rotate volumetric compensation data (2) */
 typedef struct iodbrotvolc {
      long   lin[3] ;
      long   rot[3] ;
@@ -1274,12 +1223,6 @@ typedef struct iodbmnr3 {
     double  mcr_val ;   /* macro variable */
     char    name[32] ;  /* macro name */
 } IODBMRN3 ;  /* In case that the number of data is 50 */
-
-/* cnc_rdmacror4:read custom macro names(area specified) */
-typedef struct iodbmnr4 {
-    double  mcr_val ;   /* macro variable */
-    char    name[64] ;  /* macro name */
-} IODBMRN4 ;
 
 /* cnc_rdpmacro:read P code macro variable */
 typedef struct odbpm {
@@ -2375,11 +2318,11 @@ typedef struct odbophis4 {/*--*/
             short   dummy1;
             long    g_modal[10];/* G code Modal */
             char    g_dp[10];   /* #7:1 Block */
-                                /* #6-#0 dp*/
+                                /* #6～#0 dp*/
             short   dummy2;
             long    a_modal[10];/* B,D,E,F,H,M,N,O,S,T code Modal */
             char    a_dp[10];   /* #7:1 Block */
-                                /* #6-#0 dp*/
+                                /* #6～#0 dp*/
             short   dummy3;
             long    abs_pos[32];/* Abs pos */
             char    abs_dp[32]; /* Abs dp  */
@@ -2404,11 +2347,11 @@ volatile    char    alm_msg[64];/* alarm message */
             short   dummy1;
             long    g_modal[10];/* G code Modal */
             char    g_dp[10];   /* #7:1 Block */
-                                /* #6-#0 dp*/
+                                /* #6～#0 dp*/
             short   dummy2;
             long    a_modal[10];/* B,D,E,F,H,M,N,O,S,T code Modal */
             char    a_dp[10];   /* #7:1 Block */
-                                /* #6-#0 dp*/
+                                /* #6～#0 dp*/
             short   dummy3;
             long    abs_pos[32];/* Abs pos */
             char    abs_dp[32]; /* Abs dp  */
@@ -2605,11 +2548,11 @@ typedef struct odbahis5 {
         char    alm_msg[64]; /* alarm message */
 		long    g_modal[10]; /* G code Modal */
 		char    g_dp[10];    /* #7:1 Block */
-		                     /* #6-#0 dp*/
+		                     /* #6～#0 dp*/
         short   dummy1;
 		long    a_modal[10]; /* B,D,E,F,H,M,N,O,S,T code Modal */
 		char    a_dp[10];    /* #7:1 Block */
-		                     /* #6-#0 dp*/
+		                     /* #6～#0 dp*/
         short   dummy2;
 		long    abs_pos[32]; /* Abs pos */
 		char    abs_dp[32];  /* Abs dp */
@@ -2717,7 +2660,7 @@ typedef struct odbshp {
     short           ob_type ;       /* object type */
     unsigned short  obj_no ;        /* object number */
     unsigned short  shp_no ;        /* shape number */
-    unsigned short  fig_ele[10] ;    /* figure element 1-6 */
+    unsigned short  fig_ele[10] ;    /* figure element 1～6 */
     long            ref_pos[3] ;    /* reference position */
     long            tool_ref[3] ;   /* tool reference position */
     long            tool_dir[3] ;   /* tool direction */
@@ -2754,7 +2697,7 @@ typedef struct odbmva {
     struct {
         unsigned short  axis_no ;   /* axis number */
         unsigned short  mov_dir ;   /* moving direction */
-    } lin_ax[3] ;                   /* line axis(1-3) */
+    } lin_ax[3] ;                   /* line axis(1～3) */
 
     struct {
         unsigned short  axis_no ;   /* axis number */
@@ -2763,12 +2706,12 @@ typedef struct odbmva {
         long            inc_ang ;   /* inclination angle */
         unsigned short  rot_dir ;   /* rotational direction */
         short           reserve ;   /* reserve */
-    } rot_ax[2] ;                   /* rotating axis(1-2) */
+    } rot_ax[2] ;                   /* rotating axis(1～2) */
 
     struct {
         unsigned short  master ;    /* master rotating axis */
         unsigned short  slave ;     /* slave rotating axis */
-    } rot_ele[6] ;                  /* rotating element(1-6) */
+    } rot_ele[6] ;                  /* rotating element(1～6) */
 } ODBMVA ;
 
 /* cnc_rdtdicrntshapeinf:read current shape data */
@@ -2955,9 +2898,9 @@ typedef struct odbsramstat {
 
 /* read DMG Netservice status information */
 typedef struct out_statinfo_dmg {
-     short  dummy[1];     /* Not used                          */
-     short  dmg;          /* DMG Netservice status information */
-     short  dummy1[7];    /* Not used                          */
+     short  dummy[1];     /* 未使用                       */
+     short  dmg;          /* DMG Netserviceステータス情報 */
+     short  dummy1[7];    /* 未使用                       */
 } OUT_STATINF_DMG ;
 
 /* cnc_alarm:read alarm status */
@@ -3049,15 +2992,6 @@ typedef struct odbalmmsg2 {
     short   msg_len;
     char    alm_msg[64];
 } ODBALMMSG2 ;
-
-typedef struct odbalmmsg3 {
-    long    alm_no;
-    short   type;
-    short   axis;
-    short   dummy;
-    short   msg_len;
-    char    alm_msg[256];
-} ODBALMMSG3 ;
 
 /* cnc_modal:read modal data */
 #if defined (HSSB_LIB) && defined (FS16WD)
@@ -4309,31 +4243,6 @@ typedef struct iodbpscd {
     char    dsp2_dec;
 } IODBPSCD ;
 
-/* cnc_rdpscdproc2:read processing condition file (processing data) */
-/* cnc_wrpscdproc2:write processing condition file (processing data) */
-typedef struct iodbpscd2 {
-    long    slct ;
-    long    feed ;
-    short   power ;
-    short   freq ;
-    short   duty ;
-    short   g_press ;
-    short   g_kind ;
-    short   g_ready_t ;
-    short   displace ;
-    long    supple ;
-    short   edge_slt ;
-    short   appr_slt ;
-    short   pwr_ctrl ;
-    long    displace2 ;
-    char    gap_axis ;
-    char    feed_dec ;
-    char    supple_dec ;
-    char    dsp2_dec ;
-    short   pb_power ;
-    short   reserve[8] ;
-} IODBPSCD2 ;
-
 /* cnc_rdpscdpirc:read processing condition file (piercing data) */
 /* cnc_wrpscdpirc:write processing condition file (piercing data) */
 typedef struct iodbpirc {
@@ -4353,7 +4262,7 @@ typedef struct iodbpirc {
     long    def_pos2;
     char    gap_axis;
     char    def_pos2_dec;
-    short   pb_power;
+    short   reserve;
 } IODBPIRC ;
 
 /* cnc_rdpscdedge:read processing condition file (edging data) */
@@ -4472,8 +4381,7 @@ typedef struct iodblcmdt {
     char    feed_dec;
     char    dsplc_dec;
     char    error2_dec;
-    short   pb_power ;
-	short   reserve[2];
+	short   reserve[3];
 } ODBLCMDT ;
 
 /* cnc_rdlactnum:read active number */
@@ -4890,12 +4798,6 @@ typedef struct odbspdlname {
     char suff3;         /* suffix */
 } ODBSPDLNAME ;
 
-/* cnc_rdrelaxis: read relative axis */
-typedef struct odbrelaxis {
-    short path;          /* path number */
-    short rel_axis;      /* axis number */
-} ODBRELAXIS ;
-
 /* cnc_wrunsolicprm: Set the unsolicited message parameters */
 /* cnc_rdunsolicprm: Get the unsolicited message parameters */
 typedef struct iodbunsolic {
@@ -5073,7 +4975,7 @@ typedef struct odbsysex {
         short ctrl_spdl;  /*  */
         short mchn_no;    /*  */
         short reserved;
-    } path[MAX_CNCPATH] ;
+    } path[10] ;
 } ODBSYSEX ;
 
 /* cnc_rdwseterror:read Work-piece setting error data */
@@ -5189,7 +5091,7 @@ typedef struct odb3dchk {
         long    dummy2[3];
         long    ctrlaxis;
         POSINF  data[MAX_AXIS];
-    } path[MAX_CNCPATH] ;
+    } path[10];
 } ODB3DCHK;
 
 typedef struct odb3dmtbinfo {
@@ -5201,21 +5103,12 @@ typedef struct odb3dmtbinfo {
     long    dummy[3];
 } ODB3DMTBINFO;
 
-typedef struct odb3dmtbinfo2 {
-    unsigned long    path;
-    PRGINF           prginf;
-    long             mcode[3];
-    long             bcode;
-    TOOLINF          tlinf;
-    long             dummy[4];
-} ODB3DMTBINFO2;
-
 /* cnc_3dchk_mchn_stop: Stop machine for 3D interference check */
 typedef struct idb3dmstop {
     struct {
         unsigned long   plus;
         unsigned long   minus;
-    } path[MAX_CNCPATH] ;
+    } path[10];
 } IDB3DMSTOP;
 
 
@@ -5465,8 +5358,11 @@ typedef struct odbsp2_grp7 {
     short eab_ofs_a;
     short eab_ofs_b;
     short eab_noise;
-    unsigned short iab_max_flt;
-    unsigned short eab_max_flt;
+//E25530    char iab_max_flt;
+    unsigned short iab_max_flt;	/*E25530*/
+//E25530    char eab_max_flt;
+    unsigned short eab_max_flt;	/*E25530*/
+//E25530    char reserved[2];
 } ODBSP2_GRP7;
 
 typedef struct odbsp2_grp8 {
@@ -5638,19 +5534,6 @@ typedef struct idbsdtchan {
 		unsigned short	shift;
 } IDBSDTCHAN;
 
-/* cnc_sdtsetchnl2 */
-typedef struct idbsdtchan2 {
-	short			type;
-	char			chno;
-	char			axis;
-	unsigned short	shift;
-	PMC_DATA		io[16];
-} IDBSDTCHAN2;
-
-typedef struct idbsdttrg {
-	long		seq_no;
-	PMC_DATA	pmc_trg;
-} IDBSDTTRG;
 
 /*----------------------------*/
 /* CNC : REMOTE DIAGNOSIS I/F */
@@ -5834,7 +5717,7 @@ typedef struct tagODBIFSBINFO {
     unsigned char   fssb_line_mnt_st;   /* Mount Status */
     unsigned char   reserve;            /* Mount Status */
     unsigned short  card_num;           /* Card Num */
-    ODBIFSBLINE     line_info[MAX_IFSB_LINE]; /* Line information */
+    ODBIFSBLINE     line_info[3];       /* Line information */
 }ODBIFSBINFO;
 
 typedef struct tagODBFSSBSLVUNT {
@@ -5940,37 +5823,37 @@ typedef struct tagODBIFSBSYSALM {
 } ODBIFSBSYSALM;
 
 typedef struct tagODBIFSBFSSBUNT {
-    short   slv_unt_num;    /* slave unit number */
-    short   fssb_unt_num;   /* fssb unit number */
-    char    name[4];        /* name */
+    short   slv_unt_num;    /* スレーブユニット番号 */
+    short   fssb_unt_num;   /* FSSBユニット番号 */
+    char    name[4];        /* 名称 */
 } ODBIFSBFSSBUNT;
 
 typedef struct tagODBIFSBCOMSTATDTL {
-    long    error_inf;      /* error information */
-    long    jitter_inf;     /* jitter information */
-    char    n_warning;      /* noise warning flag */
-    char    j_warning;      /* jitter warning flag */
-    char    reserve[2];     /* reserve */
+    long    error_inf;      /* エラー情報 */
+    long    jitter_inf;     /* ジッタ情報 */
+    char    n_warning;      /* ノイズワーニングフラグ */
+    char    j_warning;      /* ジッタワーニングフラグ */
+    char    reserve[2];     /* リザーブ */
 } ODBIFSBCOMSTATDTL;
 
 typedef struct tagODBIFSBWARNINGMSG {
-    short   line;           /* warning line number */
-    short   slv_src;        /* warning slave number for source*/
-    short   slv_dst;        /* warning slave number for destination */
-    short   type;           /* warning type */
-    char    wm_typ[32];     /* warning message for type*/
-    char    wm_pnt[32];     /* warning message for point*/
+    short   line;     /* ワーニング発生ライン番号 */
+    short   slv_src;  /* ワーニング発生スレーブ番号(通信元) */
+    short   slv_dst;  /* ワーニング発生スレーブ番号(通信先) */
+    short   type;     /* 発生ワーニングタイプ */
+    char    wm_typ[32]; /* ワーニングメッセージ(ﾜｰﾆﾝｸﾞ種類) */
+    char    wm_pnt[32]; /* ワーニングメッセージ(ﾜｰﾆﾝｸﾞ箇所) */
 } ODBIFSBWARNINGMSG;
 
 typedef struct tagODBIFSBWARNHSTMSG {
-    short   year;           /* year of occurrence of warning */
-    char    month;          /* month */
-    char    day;            /* day */
-    char    hour;           /* hour */
-    char    minute;         /* minute */
-    char    second;         /* second */
+    short   year;       /* ワーニング発生した年 */
+    char    month;      /*                   月 */
+    char    day;        /*                   日 */
+    char    hour;       /*                   時 */
+    char    minute;     /*                   分 */
+    char    second;     /*                   秒 */
     char    dummy;
-    ODBIFSBWARNINGMSG   msg_dat;  /* message */
+    ODBIFSBWARNINGMSG   msg_dat;    /*$ メッセージ $*/
 } ODBIFSBWARNHSTMSG;
 
 /*-----------------------------------*/
@@ -6016,24 +5899,6 @@ typedef struct odbmsudat {
     ODBMSUXTERM x_term[16];
     ODBMSUYTERM y_term[16];
 } ODBMSUDAT ;
-
-typedef struct tag_ODBEXPMCSGNLINF{
-    char    pmc_no;
-    char    kind;
-	char	length;
-    char    dummy;
-    long    top_adrs;
-} ODBEXPMCSGNLINF;
-
-typedef struct tag_ODBEXPMCSGNLTERM{
-    char    data;
-    char    dummy;
-} ODBEXPMCSGNLTERM;
-
-typedef struct odbexpmcsgnl {
-     ODBEXPMCSGNLINF    inf[2];
-     ODBEXPMCSGNLTERM   exsgnlterm[2][32];
-} ODBEXPMCSGNL ;
 
 typedef struct odbmsrpmcsgnl {
     long    adrs;
@@ -6089,26 +5954,6 @@ typedef struct odbpowchis {
 typedef struct odbpowchisall {
 	ODBPOWCHIS		powchis[30] ;
 } ODBPOWCHISALL ;
-
-/*---------------------------------*/
-/* CNC : Power Consumption Monitor */
-/*---------------------------------*/
-/* cnc_pwcm_rd_consump:read power consumption */
-typedef struct odbpwcm {
-    long consump ;          /* Integral power consumption */
-    long regen ;            /* Integral power regeneration */
-    long net ;              /* Integral net amount of power consumption */
-    long present ;          /* Present net power consumption */
-} ODBPWCM ;
-
-typedef struct odbpwcmdat {
-    unsigned long time ;           /* Integrating time of power consumption */
-    short   axis_num ;             /* Number of servo axis */
-    short   spindle_num ;          /* Number of spindle axis */
-    ODBPWCM all ;                  /* Power consumption of all axes */
-    ODBPWCM axis[MAX_AXIS] ;       /* Power consumption of each servo axis */
-    ODBPWCM spindle[MAX_SPINDLE] ; /* Power consumption of each spindle axis */
-} ODBPWCMDAT ;
 
 /*---------------*/
 /* CNC : GRAPHIC */
@@ -6195,8 +6040,6 @@ typedef struct iodbpmc {
         char    cdata[5] ;  /* PMC data */
         short   idata[5] ;
         long    ldata[5] ;
-        float   fdata[5] ;
-        double  dfdata[5] ;
     } u ;
 } IODBPMC ; /* In case that the number of data is 5 */
 #else
@@ -6209,22 +6052,20 @@ typedef struct iodbpmc {
         char    cdata[5] ;  /* PMC data */
         short   idata[5] ;
         long    ldata[5] ;
-        float   fdata[5] ;
-        double  dfdata[5] ;
     } u ;
 } IODBPMC ; /* In case that the number of data is 5 */
 #endif
 
 typedef struct  iodbrwpmc {
-    short           type_rw ;
-    short           type_a ;
-    short           type_d ;
-    unsigned short  datano_s ;
-    short           length ;
-    short           conv ;
-    short           err_code ;
-    short           reserved;
-    void            *data ;
+    short   type_rw ;
+    short   type_a ;
+    short   type_d ;
+    short   datano_s ;
+    short   length ;
+    short   conv ;
+    short   err_code ;
+    short   reserved;
+    void    *data ;
 } IODBRWPMC ;
 
 /* pmc_rdpmcinfo:read informations of PMC data */
@@ -6277,20 +6118,6 @@ typedef struct  odbpmctitle {
     char    written[48];
     char    remarks[48];
 } ODBPMCTITLE ;
-
-/* pmc_rdpmctitle2:read pmc title data */
-typedef struct  odbpmctitle2 {
-    char    mtb[48];
-    char    machine[48];
-    char    type[48];
-    char    prgno[16];
-    char    prgvers[16];
-    char    prgdraw[48];
-    char    date[32];
-    char    design[48];
-    char    written[48];
-    char    remarks[48];
-} ODBPMCTITLE2 ;
 
 /* pmc_rdpmcrng_ext:read PMC data */
 typedef struct iodbpmcext {
@@ -7124,29 +6951,6 @@ typedef struct _out_mbsvrinfo {
     MBSVR_CLNT_INFO         clntinfo[10];
 } OUT_MBSVRINFO;
 
-/* net_rdtype : */
-typedef struct _out_fl_devtype {
-    unsigned short          Kind1;
-    unsigned char           pad1[2];
-    unsigned long           FunctionFLnet1;
-    unsigned short          Kind2;
-    unsigned char           pad2[2];
-    unsigned long           FunctionFLnet2;
-} FL_DEVTYPE;
-
-typedef struct _out_pnc_devtype {
-    unsigned short          Kind;
-    unsigned char           pad[2];
-    unsigned long           FunctionPnc;
-} PNC_DEVTYPE;
-
-typedef struct _out_netdevprm {
-    union {
-       FL_DEVTYPE           Fldevtype;
-       PNC_DEVTYPE          Pncdevtype;
-    } prm;
-} OUT_NETDEVPRM;
-
 /*----------------------------*/
 /* NET : EtherNet/IP function */
 /*----------------------------*/
@@ -7457,45 +7261,6 @@ typedef struct _out_eips_identity_info {
     char                    ProductName[33];
     char                    pad2[3];
 } OUT_EIPS_IDENTITY_INFO;
-
-typedef struct _out_adpsafe_mntinfo {
-    unsigned short  SupervisorStatus;
-    unsigned char   SafetyNetworkNumber[6];
-
-    unsigned short  SelfDiagnosisErrorA;
-    unsigned short  SelfDiagnosisErrorB;
-    unsigned short  SelfDiagnosisDetailA;
-    unsigned short  SelfDiagnosisDetailB;
-
-    unsigned long   SafetyParameterCrc;
-    unsigned short  ChangeDateYear;
-    unsigned char   ChangeDateMonth;
-    unsigned char   ChangeDateDay;
-    unsigned short  ChangeTimeHours;
-    unsigned short  ChangeTimeMinutes;
-    unsigned short  ChangeTimeSeconds;
-    unsigned short  Pad;
-
-    unsigned char   DiConnectionStatusA;
-    unsigned char   DiConnectionStatusB;
-    unsigned char   DoConnectionStatusA;
-    unsigned char   DoConnectionStatusB;
-
-    unsigned char   DiConnectionDataSizeA;
-    unsigned char   DiConnectionDataSizeB;
-    unsigned char   DoConnectionDataSizeA;
-    unsigned char   DoConnectionDataSizeB;
-
-    unsigned char   DiConnectionErrorA;
-    unsigned char   DiConnectionErrorB;
-    unsigned char   DoConnectionErrorA;
-    unsigned char   DoConnectionErrorB;
-
-    unsigned short  DiRecvPacketNumberA;
-    unsigned short  DiRecvPacketNumberB;
-    unsigned short  DoSendPacketNumberA;
-    unsigned short  DoSendPacketNumberB;
-} OUT_ADPSAFE_MNTINFO;
 
 /*---------------------------*/
 /* NET : PROFIBUS function   */
@@ -9020,145 +8785,6 @@ typedef struct _out_pnd_mntinfo {
     unsigned short          DiRefreshTIme;
 } OUT_PND_MNTINFO;
 
-/*---------------------------------------*/
-/* NET : PROFINET IO Controller function */
-/*---------------------------------------*/
-
-/* pnc_rdparam pnc_wrparam */
-typedef struct _pnc_addr {
-    unsigned short          Path;
-    short                   Kind;
-    unsigned long           Addr;
-    unsigned long           Size;
-} PNC_ADDR;
-
-/* pnc_rdparam */
-typedef struct _pnc_common_param {
-    char                    OwnMacAddress[16];
-    char                    OwnIpAddress[40];
-    char                    SubNetmask[16];
-    char                    RouterIpAddress[40];
-} PNC_COMMON_PARAM;
-
-/* pnc_rdparam pnc_wrparam */
-typedef struct _pnc_ping_param {
-    char                    IpAddress[64];
-    unsigned short          Count;
-    char                    pad[2];
-} PNC_PING_PARAM;
-
-/* pnc_rdparam */
-typedef struct _pnc_setting_param {
-    unsigned char           PnControllerMode;
-    unsigned char           TotalDeviceNum;
-    unsigned char           BasicOption1;
-    unsigned char           reserve1;
-    PNC_ADDR                DiData;
-    PNC_ADDR                DoData;
-    PNC_ADDR                Status;
-    unsigned char           reserve2[12];
-} PNC_SETTING_PARAM;
-
-/* pnc_rdparam */
-typedef struct _pnc_param {
-    PNC_COMMON_PARAM        Common;
-    PNC_PING_PARAM          Ping;
-    PNC_SETTING_PARAM       Setting;
-} PNC_PARAM;
-
-/* pnc_rdparam */
-typedef PNC_PARAM           OUT_PNC_PARAM;
-
-/* pnc_wrparam pnc_rdmntinfo */
-typedef struct _pnc_addr_top {
-    unsigned short          Path;
-    short                   Kind;
-    unsigned long           Addr;
-} PNC_ADDRTOP;
-
-/* pnc_wrparam */
-typedef struct _pnc_common_param_w {
-    char                    OwnIpAddress[40];
-    char                    SubNetmask[16];
-    char                    RouterIpAddress[40];
-} PNC_COMMON_PARAM_W;
-
-/* pnc_wrparam */
-typedef struct _pnc_setting_param_w {
-    unsigned char           PnControllerMode;
-    unsigned char           pad;
-    unsigned char           BasicOption1;
-    unsigned char           reserve1;
-    PNC_ADDRTOP             DiAddrTop;
-    PNC_ADDRTOP             DoAddrTop;
-    PNC_ADDR                Status;
-    unsigned char           reserve2[12];
-} PNC_SETTING_PARAM_W;
-
-/* pnc_wrparam */
-typedef struct _pnc_param_flg {
-    char                    OwnIpAddress;
-    char                    SubNetmask;
-    char                    RouterIpAddress;
-    char                    PingIpAddress;
-    char                    PingCount;
-    char                    PnControllerMode;
-    char                    BasicOption1;
-    char                    reserve1;
-    char                    DiAddrTop;
-    char                    DoAddrTop;
-    char                    Status;
-    char                    reserve2;
-} PNC_PARAM_FLG;
-
-/* pnc_wrparam */
-typedef struct _pnc_param_w {
-    PNC_COMMON_PARAM_W      Common;
-    PNC_PING_PARAM          Ping;
-    PNC_SETTING_PARAM_W     Setting;
-} PNC_PARAM_W;
-
-/* pnc_wrparam */
-typedef struct _in_pnc_param {
-    PNC_PARAM_FLG           flg;
-    PNC_PARAM_W             prm;
-} IN_PNC_PARAM;
-
-/* pnc_rdmntinfo */
-typedef struct _out_pnc_cntrlr_info {
-    unsigned char           Status;
-    unsigned char           pad;
-    unsigned short          DiDoRefreshTime;
-} OUT_PNC_CNTRLR_INFO;
-
-/* pnc_rdmntinfo */
-typedef struct _out_pnc_device_info {
-    char                    IpAddress[16];
-    unsigned char           Status;
-    unsigned char           pad[3];
-    PNC_ADDRTOP             DiAddrTop;
-    PNC_ADDRTOP             DoAddrTop;
-    unsigned short          InputSize;
-    unsigned short          OutputSize;
-    unsigned short          InputCycleTime;
-    unsigned short          OutputCycleTime;
-    unsigned long           AlarmNum;
-    unsigned long           ConnectTime;
-} OUT_PNC_DEVICE_INFO;
-
-/* pnc_rdmntinfo */
-typedef struct _out_pnc_allcom_stat {
-    unsigned char           State[48];
-} OUT_PNC_ALLCOM_STAT;
-
-/* pnc_resdetailinfo */
-typedef struct _out_pnc_detail_info {
-    short                   Result;
-    unsigned char           pad[2];
-    char                    IpAddress[16];
-    char                    Info[360];
-} OUT_PNC_DETAIL_INFO;
-
 /*-----------------------------------*/
 /* NET : EtherCAT function           */
 /*-----------------------------------*/
@@ -9493,7 +9119,7 @@ typedef struct odbahdck {
 	struct {
 		short	stat ;
 		short	data ;
-	} info[MAX_CNCPATH];
+	} info[10];
 } ODBAHDCK;
 
 /*--- cnc_rstrt_rdpntlist ---*/
@@ -9569,15 +9195,6 @@ typedef struct iodbrstinfo2 {
 	long  id_no;
 	long  reserve2[3];
 } IODBRSTINFO2 ;
-
-/*---cnc_rstrt_rdlpmppnt---*/
-/* restart point mpinfo */
-typedef struct odbrstmpinfo {
-    long    u_block_num;
-    long    mltpiece_all;
-    long    mltpiece_exe;
-    char    u_file_name[246];
-}ODBRSTMPINFO ;
 
 /*---------------------*/
 /* spindle unit offset */
@@ -9733,14 +9350,6 @@ typedef struct odbrbsignal{
 	char name[76];
 }ODBRBSIGNAL;
 
-typedef struct iodbrbsignal2{
-    char type;
-    char state;
-    unsigned short no;
-    char name[73];
-    char reserve[3];
-}IODBRBSIGNAL2;
-
 typedef struct iodbrbalmmsg{
 	char msg[152];
 }IODBRBALMMSG;
@@ -9857,61 +9466,6 @@ typedef struct _odbcoord{
     short   vec_y[3] ;
     short   vec_z[3] ;
 } ODBCOORD ;
-
-typedef struct idbtwp_euler_fmt{
-    double orign[3];
-    double i;
-    double j;
-    double k;
-    long   reserve[24];
-} IDBTWP_EULER_FMT;
-
-typedef struct idbtwp_rpy_fmt{
-    double orign[3];
-    double i;
-    double j;
-    double k;
-    short  turn ;
-    short  reserve0 ;
-    long   reserve[23];
-} IDBTWP_RPY_FMT;
-
-typedef struct idbtwp_3p_fmt{
-    double p1[3];
-    double p2[3];
-    double p3[3];
-    double sft[3];
-    double rot;
-    long   reserve[10];
-} IDBTWP_3P_FMT;
-
-typedef struct idbtwp_2vct_fmt{
-    double orign[3];
-    double vtr1[3];
-    double vtr2[3];
-    long   reserve[18];
-} IDBTWP_2VCT_FMT;
-
-typedef struct idbtwp_pjct_fmt{
-    double orign[3];
-    double i;
-    double j;
-    double k;
-    long   reserve[24];
-} IDBTWP_PJCT_FMT;
-
-typedef union idbviewgrp{
-    IDBTWP_EULER_FMT euler;
-    IDBTWP_RPY_FMT   rpy;
-    IDBTWP_3P_FMT    p3;
-    IDBTWP_2VCT_FMT  vct2;
-    IDBTWP_PJCT_FMT  pjct;
-} IDBTWPFORM;
-
-typedef struct odbftrmtx{
-    double orgn[3];
-    double rot[3][3];
-} ODBFTRMTX;
 
 /*---------------------------------------*/
 /* Machining Condition Setting           */
@@ -10068,8 +9622,7 @@ typedef struct iodbedge2 {
     char     r_len_dec;
     char     r_feed_dec;
     char     reserve;
-    short    pb_power ;
-    short    reserves[2];
+    short    reserves[3];
 } IODBEDGE2 ;
 
 /*------ cnc_rdlpscdpwrctl ------*/
@@ -10087,9 +9640,7 @@ typedef struct iodbpwrctl {
     long     feed_r;     
     short    ag_press_min ;
     short    ag_press_sp_zr ;
-    short    pb_power_min ;
-    short    pb_pwr_sp_zr ;
-    short    reserves[2] ;
+    short    reserves[4] ;
 } IODBPWRCTL ;
 
 /*------ cnc_rdldsplc2 ------*/
@@ -10098,7 +9649,7 @@ typedef struct iodbdsplc {
     short   slct;
     long    dsplc;
     short   dsplc_dec;
-    char    gap_ix;
+    char    reserve;
     short   reserves[4];
 } IODBDSPLC ;
 
@@ -10163,10 +9714,10 @@ typedef struct odbplsdata {
 	short	channel_state;	/* Channel Connect State */
 	short	reserve1;		/* reserve */
 	short	reserve2;		/* reserve */
-	short	alarm[4];		/* Alarm Detail(CH1-4) */
-	short	cmd_val[4];		/* Command Value(CH1-4) */
+	short	alarm[4];		/* Alarm Detail(CH1～4) */
+	short	cmd_val[4];		/* Command Value(CH1～4) */
 	short	reserve3[4];		/* reserve */
-	long	total_val[4];	/* Total Value(CH1-4) */
+	long	total_val[4];	/* Total Value(CH1～4) */
 	long	reserve4[4];	/* reserve */
 } ODBPLSDATA;
 
@@ -10187,74 +9738,6 @@ typedef struct odbhmprogstat {
     long    prog_no;
     long    block_no;
 } ODBHMPROGSTAT ;
-
-/*-----------------------------------*/
-/*  Teach Program Input/Output Data  */
-/*-----------------------------------*/
-typedef struct odbtpaprg {
-    /* output */
-    short       format_version;		/* Data format version */
-    short       func_version;		/* Function set version */
-    long        size;				/* Memory usage */
-    struct {						/* Creation date */
-        short       year;
-        short       mon;
-        short       day;
-        short       hour;
-        short       min;
-        short       sec;
-    } create ;
-    struct {						/* Edit date */
-        short       year;
-        short       mon;
-        short       day;
-        short       hour;
-        short       min;
-        short       sec;
-    } edit ;
-    struct {						/* Conversion date */
-        short       year;
-        short       mon;
-        short       day;
-        short       hour;
-        short       min;
-        short       sec;
-    } convert ;
-    unsigned long attr;				/* Program attribute */
-    char        name_copy[36];		/* Name of copy original */
-
-    char        prg_name[36];		/* Program name */
-    char        comment[20];		/* Comment text of program */
-    unsigned long axis;				/* Control axis bit (in path) */
-    char        out_nc_prg[36];		/* Output NC program name */
-    long        reserve[2];
-} ODBTPAPRG ;
-
-typedef struct idbtpinfo {
-	char			prg_name[36];	/* Program name */
-	char			comment[20];	/* Comment text of program */
-	unsigned long	axis;			/* Control axis bit (in path) */
-	char			out_nc_prg[36];	/* Output NC program name */
-	long			reserve[2];
-} IDBTPINFO ;
-
-typedef struct tprogeditcmd {
-    char cmd_num ;					/* Count of cmd[] */
-    char cmd[31] ;					/* Array of available commands */
-    char word_num ;					/* Count of word[] */
-    char word[31] ;					/* Array of available words */
-} ODBTPEDTCMD;
-
-typedef struct tprogcmd {
-    long cmd_id ;					/* Kind of edit operation */
-									/* Arguments */
-    long    integer[4];					/* integer */
-    struct {							/* real */
-       long val;
-       long dec;
-    } val[4];
-    char    text[64];					/* text */
-} IDBTPCMD;
 
 /*----------------------------*/
 /* Machining simulation       */
@@ -10315,204 +9798,7 @@ typedef struct iodbsimuelm {
     char    fbsft;
     char    tilt;
 } IODBSIMUELM;
-
-/* anm_rdsimuelm2 : move element data with multi M code */
-typedef struct iodbsimuelm2 {
-    char    type;
-    char    rot_w;
-    char    type2;
-    char    plane;
-    long    tcode;
-    union {
-        struct {
-            long    mv_p[8];
-        } rapid;
-        struct {
-            long    mv_p[8];
-        } line;
-        struct {
-            long    mv_p[8];
-            long    cnt_p[4];
-        } arc;
-        struct {
-            long    mv_p[8];
-            long    ptch;
-        } thrd1;
-        struct {
-            long    mv_p[8];
-            long    ptch;
-            long    mv_p2[2];
-        } thrd2;
-        struct {
-            long    mv_p[16];
-        } dummy_d;
-    } data;
-    char    dm_type;
-    char    cssc_md;
-    long    dm_x[3];
-    long    dm_y[3];
-    long    dm_z[3];
-    long    cnt_x[3];
-    long    cord[6];
-    char    tlchng;
-    char    fd_type;
-    long    mcode;
-    short   dummy4;
-    long    cylndr;
-    long    aux;
-    long    dcode;
-    long    smax;
-    long    dwell;
-    long    fcode;
-    long    scode;
-    char    nummcd;
-    char    fcddec;
-    long    shift;
-    char    fbsft;
-    char    tilt;
-    short   dummy6;
-    long    mcode2;
-    long    mcode3;
-    long    mcode4;
-    long    mcode5;
-    long    reserve[10];
-} IODBSIMUELM2;
 #endif
-
-/*--- cnc_rdsvgtungstat ---*/
-
-typedef struct odbtunreq {
-    struct {
-        short status;
-        short dummy;
-    } stat[MAX_AXIS];
-} ODBTUNREQ;
-
-typedef struct obdtunstat {
-    struct {
-        short status;
-        short dummy;
-    } stat[MAX_AXIS];
-} ODBTUNSTAT;
-
-/*------------------------*/
-/* Reducing Cycle Time    */
-/*------------------------*/
-
-typedef struct iodbrct_item {
-    unsigned short  item_num;
-    unsigned char   type ;
-             char   axsp_num ;
-             char   ptn_num ;
-    unsigned char   dummy ;
-    unsigned short  attr ;
-
-    struct data_info {
-        char    enable ;
-        char    dummy2[3] ;
-        long    attr2 ;
-        union {
-            char    bdata ;
-            char    cdata ;
-            short   idata ;
-            long    ldata ;
-            REALPRM rdata ;
-            char    bdatas[MAX_AXIS] ;
-            char    cdatas[MAX_AXIS] ;
-            short   idatas[MAX_AXIS] ;
-            long    ldatas[MAX_AXIS] ;
-            REALPRM rdatas[MAX_AXIS] ;
-        } uParam ;
-    } ptn[6] ;
-} IODBRCT_ITEM;
-
-typedef struct iodbrct_cstmname {
-    unsigned short  grp_num;       			/* grp number    */
-    unsigned short  dummy;              	/* dummy         */
-              char  grp_name[16];       	/* group name    */
-              char  ptn_name[3][16];    	/* pattern name  */
-} IODBRCT_CSTMNAME;
-
-typedef struct iodbrct_grpptn {
-    unsigned short  grp_num;                /* grp number    */
-    unsigned short  ptn_num;                /* dummy         */
-} IODBRCT_GRPPTN ;
-
-typedef struct odbrct_slctptnname {
-    long            sl_ptrn_no ;            /* pattern number */
-    short           sl_nm_slct ;            /* name number    */
-} ODBRCT_SLCTPTNNAME ;
-
-typedef struct odbpressure {
-    long    cmd_val;
-    long    feedbak_val;
-} ODBPRESSURE;
-
-typedef struct odbexpos {
-    double  data;
-    long    dec;
-    long    digit;
-} ODBEXPOS ;
-
-/*------------------------------*/
-/* Scroll Waiting Mcode Setting */
-/*------------------------------*/
-typedef struct iodbwaitmcode {
-    long	mcode;                /* scroll wait mcode   */
-    long	pathnum;              /* path num            */
-} IODBWAITMCODE ;
-
-/*-------------------------*/
-/* Smart Adaptive controll */
-/*-------------------------*/
-typedef struct curoverr {
-    unsigned short  current ;
-    unsigned short  minmum ;
-    unsigned short  maximum ;
-    short           dummy ;
-} CUROVRR ;
-typedef struct curload {
-    unsigned short  current ;
-    unsigned short  effect ;
-    unsigned short  target ;
-    unsigned short  irregular ;
-    long            dummy ;
-} CURLOAD ;
-typedef struct curtemp {
-    unsigned short  current ;
-    unsigned short  start ;
-    unsigned short  end ;
-    unsigned short  alarm ;
-    long            dummy ;
-} CURTEMP ;
-typedef struct currdtm {
-    unsigned short  current ;
-    unsigned short  threshold ;
-    long            dummy ;
-} CURRDTM ;
-typedef struct odbsoccur {
-    short           mode ;
-    short           table ;
-    long            dummy ;
-    CUROVRR         ovrr ;
-    CURLOAD         load ;
-    CURTEMP         temp ;
-    CURRDTM         rdtm ;
-} ODBSOCCUR ;
-
-typedef struct soctlattr {
-	short	prm_no ;
-	char	type ;
-} ODBSOCTLATTR ;
-
-typedef struct soctldat {
-	union {
-		char	cdata ;
-		short	idata ;
-		long	ldata ;
-		REALPRM	rdata ;
-	} u ;
-} IODBSOCTLDAT ;
 
 #ifdef _MSC_VER
 #pragma pack(pop)
@@ -10737,24 +10023,6 @@ FWLIBAPI short WINAPI cnc_download4( unsigned short, long *, char * ) ;
 
 /* end of downloading NC program 4 */
 FWLIBAPI short WINAPI cnc_dwnend4( unsigned short ) ;
-
-/* start reading file to PC */
-FWLIBAPI short WINAPI cnc_fileread_start( unsigned short, short, char * ) ;
-
-/* read file to PC */
-FWLIBAPI short WINAPI cnc_fileread( unsigned short, long * , char * ) ;
-
-/* end of reading file to PC */
-FWLIBAPI short WINAPI cnc_fileread_end( unsigned short ) ;
-
-/* start writing file from PC */
-FWLIBAPI short WINAPI cnc_filewrite_start( unsigned short, short, char * , short ) ;
-
-/* write file from PC */
-FWLIBAPI short WINAPI cnc_filewrite( unsigned short, long * , char * ) ;
-
-/* end of writing file from PC */
-FWLIBAPI short WINAPI cnc_filewrite_end( unsigned short ) ;
 
 /* start verification of NC program */
 FWLIBAPI short WINAPI cnc_vrfstart( unsigned short ) ;
@@ -10997,7 +10265,6 @@ FWLIBAPI short WINAPI cnc_searchword( unsigned short, long, unsigned long, short
 
 FWLIBAPI short WINAPI cnc_searchword2( unsigned short, long, unsigned long, short, short, unsigned long, char * );
 FWLIBAPI short WINAPI cnc_pdf_searchword( unsigned short, char *, unsigned long, unsigned long, unsigned long, unsigned long, char * );
-FWLIBAPI short WINAPI cnc_pdf_searchword2( unsigned short, char *, unsigned long, unsigned long, unsigned long, unsigned long, char * );
 FWLIBAPI short WINAPI cnc_pdf_searchword_bgedt( unsigned short, char *, unsigned long, unsigned long, unsigned long, unsigned long, char * );
 
 /* line edit (search string in Data Server) */
@@ -11009,7 +10276,6 @@ FWLIBAPI short WINAPI cnc_searchresult( unsigned short, unsigned long * );
 #endif
 FWLIBAPI short WINAPI cnc_searchresult2( unsigned short, unsigned long * );
 FWLIBAPI short WINAPI cnc_pdf_searchresult( unsigned short, unsigned long * );
-FWLIBAPI short WINAPI cnc_pdf_searchresult2( unsigned short, unsigned long * );
 FWLIBAPI short WINAPI cnc_pdf_searchresult_bgedt( unsigned short, unsigned long * );
 
 /* replace all words */
@@ -11032,7 +10298,6 @@ FWLIBAPI short WINAPI cnc_setsumdt(unsigned short, short, char *);
 
 /* line edit (read program by file name) */
 FWLIBAPI short WINAPI cnc_rdpdf_line( unsigned short, char *, unsigned long, char *, unsigned long *, unsigned long * );
-FWLIBAPI short WINAPI cnc_rdpdf_line2( unsigned short, char *, unsigned long, char *, unsigned long *, unsigned long * );
 FWLIBAPI short WINAPI cnc_rdpdf_line_bgedt( unsigned short, char *, unsigned long, char *, unsigned long *, unsigned long * );
 FWLIBAPI short WINAPI cnc_rdpdf_execline( unsigned short, char *, unsigned long, char *, unsigned long *, unsigned long * );
 
@@ -11169,17 +10434,10 @@ FWLIBAPI short WINAPI cnc_read_data(unsigned short , short, char *);
 FWLIBAPI short WINAPI cnc_punch_data_start( unsigned short, short, unsigned long, unsigned long, char * );
 FWLIBAPI short WINAPI cnc_punch_data_end( unsigned short, unsigned long *, unsigned long *, short * );
 
-FWLIBAPI short WINAPI cnc_start_async_data_punch(unsigned short , short , char *);
-FWLIBAPI short WINAPI cnc_end_async_data_punch(unsigned short , short , short *);
-FWLIBAPI short WINAPI cnc_start_async_data_read(unsigned short , short , char *);
-FWLIBAPI short WINAPI cnc_end_async_data_read(unsigned short , short , short *);
-
 /* memory card program */
 FWLIBAPI short WINAPI cnc_mcdp_unmount(unsigned short);
 FWLIBAPI short WINAPI cnc_mcdp_mountchk(unsigned short, char *);
 FWLIBAPI short WINAPI cnc_mcdp_mount(unsigned short);
-FWLIBAPI short WINAPI cnc_mcdp_update_entry(unsigned short, long);
-FWLIBAPI short WINAPI cnc_mcdp_wractpt(unsigned short, char *, long, unsigned long *);
 
 /* cnc_rdactpt_w:read execution pointer of program for FS160is/180is-WB */
 FWLIBAPI short WINAPI cnc_rdactpt_w( unsigned short, short, ODBACTPTW * );
@@ -11377,7 +10635,6 @@ FWLIBAPI short WINAPI cnc_rdmacror2( unsigned short, unsigned long, unsigned lon
 FWLIBAPI short WINAPI cnc_rdmacror2_name( unsigned short, unsigned long, unsigned long *, IODBMRN *pdb ) ;
 #endif
 FWLIBAPI short WINAPI cnc_rdmacror3( unsigned short, unsigned long, unsigned long *, IODBMRN3 *pdb ) ;
-FWLIBAPI short WINAPI cnc_rdmacror4( unsigned short, unsigned long, unsigned long *, IODBMRN4 *pdb ) ;
 
 /* write custom macro variables(IEEE double version) */
 FWLIBAPI short WINAPI cnc_wrmacror2( unsigned short, unsigned long, unsigned long *, double * ) ;
@@ -11387,9 +10644,6 @@ FWLIBAPI short WINAPI cnc_rdmacro_bg( unsigned short, short, short, ODBM * ) ;
 
 /* write custom macro variable(Back ground version) */
 FWLIBAPI short WINAPI cnc_wrmacro_bg( unsigned short, short, short, long, short ) ;
-
-/* read custom macro variable number */
-FWLIBAPI short WINAPI cnc_rdmacronum( unsigned short, char *, unsigned long, unsigned long *, short * ) ;
 
 /* read P code macro variable */
 FWLIBAPI short WINAPI cnc_rdpmacro( unsigned short, long, ODBPM * ) ;
@@ -11489,9 +10743,6 @@ FWLIBAPI short WINAPI	cnc_rdrotvolc( unsigned short, long , long *, IODBROTVOLC 
 
 /* write rotate volumetric compensation data */
 FWLIBAPI short WINAPI	cnc_wrrotvolc( unsigned short, long , long *, IODBROTVOLC * );
-
-/* write rotate volumetric compensation data (2) */
-FWLIBAPI short WINAPI	cnc_wrrotvolc2( unsigned short, long , long *, IODBROTVOLC * );
 
 /* read P code macro variable information */
 FWLIBAPI short WINAPI cnc_rdpmacroinfo( unsigned short, ODBPMINF * ) ;
@@ -12175,9 +11426,6 @@ FWLIBAPI short WINAPI cnc_rdalmmsg( unsigned short, short, short *, ODBALMMSG * 
 /* read alarm message */
 FWLIBAPI short WINAPI cnc_rdalmmsg2( unsigned short, short, short *, ODBALMMSG2 * ) ;
 
-/* read alarm message */
-FWLIBAPI short WINAPI cnc_rdalmmsg3( unsigned short, short, short *, ODBALMMSG3 * ) ;
-
 /* clear CNC alarm */
 FWLIBAPI short WINAPI cnc_clralm( unsigned short hndl, short id ) ;
 
@@ -12817,12 +12065,6 @@ FWLIBAPI short WINAPI cnc_rdpscdproc( unsigned short, short, short *, IODBPSCD *
 /* write processing condition file (processing data) */
 FWLIBAPI short WINAPI cnc_wrpscdproc( unsigned short, short, short *, IODBPSCD * ) ;
 
-/* read processing condition file (processing data) */
-FWLIBAPI short WINAPI cnc_rdpscdproc2( unsigned short, short, short *, IODBPSCD2 * ) ;
-
-/* write processing condition file (processing data) */
-FWLIBAPI short WINAPI cnc_wrpscdproc2( unsigned short, short, short *, IODBPSCD2 * ) ;
-
 /* read processing condition file (piercing data) */
 FWLIBAPI short WINAPI cnc_rdpscdpirc( unsigned short, short, short *, IODBPIRC * ) ;
 
@@ -13164,12 +12406,6 @@ FWLIBAPI short WINAPI cnc_exaxisname( unsigned short, short, short *, char (*)[M
 /* read extended axis name */
 FWLIBAPI short WINAPI cnc_exaxisname2( unsigned short, short, short, short *, char (*)[MAX_AXISNAME] );
 
-/* read relative axis */
-FWLIBAPI short WINAPI cnc_rdrelaxis( unsigned short, short, short, short *, ODBRELAXIS *);
-
-/* read absolute axis */
-FWLIBAPI short WINAPI cnc_rdabsaxis( unsigned short, short, short, short, short *, short *);
-
 /* read axis num */
 FWLIBAPI short WINAPI cnc_axisnum( unsigned short, short, short * );
 
@@ -13225,8 +12461,10 @@ FWLIBAPI short WINAPI cnc_rdunsolicmsg( short bill, IDBUNSOLICMSG *data );
 /* Reads the unsolicited message data(2) */
 FWLIBAPI short WINAPI cnc_rdunsolicmsg2( short bill, IDBUNSOLICMSG2 *data2 );
 
+#ifndef CNC_PPC
 /* Set torque limit data */
 FWLIBAPI short WINAPI cnc_wrtrqlimit( unsigned short, short, IDBTRQ * );
+#endif
 
 /* Fine toruqe senshing from save */
 FWLIBAPI short WINAPI cnc_ftrq_from_save( unsigned short );
@@ -13510,9 +12748,6 @@ FWLIBAPI short WINAPI cnc_3dchk_rddata2(unsigned short, ODB3DCHK *, short [], OD
 /* Reads 3D interference chaeck data(3) */
 FWLIBAPI short WINAPI cnc_3dchk_rddata3(unsigned short, unsigned long *, ODB3DCHK [], short [], ODB3DMTBINFO [] );
 
-/* Reads 3D interference chaeck data(4) */
-FWLIBAPI short WINAPI cnc_3dchk_rddata4(unsigned short, unsigned long *, ODB3DCHK [], short *, ODB3DMTBINFO2 [] );
-
 /* End of 3D interference check */
 FWLIBAPI short WINAPI cnc_3dchk_end(unsigned short);
 
@@ -13578,12 +12813,6 @@ FWLIBAPI short WINAPI cnc_wrsignal_f(unsigned short, short, unsigned long);
 
 /* NCGuide protect cancel */
 FWLIBAPI short WINAPI cnc_ncg_protcancel( unsigned short, char *, long );
-
-#ifndef CNC_PPC
-FWLIBAPI short WINAPI cnc_set_prps( unsigned short, short, char *, unsigned long );
-FWLIBAPI short WINAPI cnc_reset_prps( unsigned short, short, char * );
-FWLIBAPI short WINAPI cnc_status_prps( unsigned short, short, unsigned long * );
-#endif
 
 /*-----*/
 /* CNC */
@@ -13664,14 +12893,6 @@ FWLIBAPI short WINAPI cnc_rd_grppos( unsigned short, short *, ODBGRPPOS * );
 /* Read drawing axis information */
 FWLIBAPI short WINAPI cnc_rd_grpaxisinfo( unsigned short, short *, ODBGRPAXIS * );
 
-/* Start position sampling */
-FWLIBAPI short WINAPI cnc_start_grppos3( unsigned short );
-
-/* Stop position sampling */
-FWLIBAPI short WINAPI cnc_stop_grppos3( unsigned short );
-
-/* Read position data */
-FWLIBAPI short WINAPI cnc_rd_grppos3( unsigned short, short *, ODBGRPPOS * );
 
 /*---------------------------*/
 /* CNC : Servo learning data */
@@ -13762,23 +12983,15 @@ FWLIBAPI short WINAPI cnc_sfbendsmpl( unsigned short );
 
 FWLIBAPI short WINAPI cnc_sdtsetchnl( unsigned short, short, long, IDBSDTCHAN * );
 
-FWLIBAPI short WINAPI cnc_sdtsetchnl2( unsigned short, short, long, IDBSDTCHAN2 * );
-
 FWLIBAPI short WINAPI cnc_sdtclrchnl( unsigned short );
 
 FWLIBAPI short WINAPI cnc_sdtstartsmpl( unsigned short, short, long );
-
-FWLIBAPI short WINAPI cnc_sdtstartsmpl2( unsigned short, short, short, TRG_DATA * );
 
 FWLIBAPI short WINAPI cnc_sdtcancelsmpl( unsigned short );
 
 FWLIBAPI short WINAPI cnc_sdtreadsmpl( unsigned short, short *, long, ODBSD * );
 
-FWLIBAPI short WINAPI cnc_sdtreadsmpl2( unsigned short, unsigned short *, long, ODBSD * );
-
 FWLIBAPI short WINAPI cnc_sdtendsmpl( unsigned short );
-
-FWLIBAPI short WINAPI cnc_sdtendsmpl2( unsigned short );
 
 FWLIBAPI short WINAPI cnc_sdtread1shot( unsigned short, unsigned short * );
 
@@ -13801,10 +13014,10 @@ FWLIBAPI short WINAPI cnc_stopnccmd( unsigned short );
 /* Get NC display mode */
 FWLIBAPI short WINAPI cnc_getdspmode( unsigned short, short * );
 
-//#ifndef CNC_PPC
+#ifndef CNC_PPC
 /* Set current display screen */
 FWLIBAPI short WINAPI cnc_setcurscrn( unsigned short, short );
-//#endif
+#endif
 
 /* Change status of SDF */
 FWLIBAPI short WINAPI cnc_sdfstatchg( unsigned short, short, short, int, long );
@@ -14070,9 +13283,6 @@ FWLIBAPI short WINAPI pmc_wrpmcrng( unsigned short, unsigned short, IODBPMC * ) 
 FWLIBAPI short WINAPI pmc_wrpmcrng( unsigned short, short, IODBPMC *);
 #endif
 
-/* write PMC data2(area specified) */
-FWLIBAPI short WINAPI pmc_wrpmcrng2( unsigned short, unsigned short, IODBPMC * ) ;
-
 FWLIBAPI short WINAPI pmc_rdwrpmcrng( unsigned short, short, IODBRWPMC [] );
 
 /* read data from extended backup memory */
@@ -14125,7 +13335,6 @@ FWLIBAPI short WINAPI pmc_wrpmcsemem( unsigned short, short, long, long, void * 
 
 /* read pmc title data */
 FWLIBAPI short WINAPI pmc_rdpmctitle( unsigned short, ODBPMCTITLE * ) ;
-FWLIBAPI short WINAPI pmc_rdpmctitle2( unsigned short, ODBPMCTITLE2 * ) ;
 
 /* read PMC parameter start */
  FWLIBAPI short WINAPI pmc_rdprmstart( unsigned short ) ;
@@ -14189,22 +13398,6 @@ FWLIBAPI short WINAPI pmc_wrcntl_exrelay_grp( unsigned short, short ) ;
 
 /* convert to PMC address information from address or symbol string */
 FWLIBAPI short WINAPI pmc_convert_from_string_to_address( unsigned short, const char *, ODBPMCADRINFO * );
-
-/*j select divided ladder */
-FWLIBAPI short WINAPI pmc_select_divided_ladder( unsigned short h, long divnumber );
-
-/*j get current divided ladder */
-FWLIBAPI short WINAPI pmc_get_current_divided_ladder( unsigned short h, long * divnumber );
-
-/*j get number of Ladder */
-FWLIBAPI short WINAPI pmc_get_number_of_ladder( unsigned short h, long * number );
-
-/*j get Divided Ladders */
-FWLIBAPI short WINAPI pmc_get_divided_ladders( unsigned short h, long divnums[], long * count );
-
-FWLIBAPI short WINAPI pmc_rdioconfigtitle(unsigned short, long, char *);
-
-FWLIBAPI short WINAPI pmc_rdmessagetitle(unsigned short, long, char *);
 
 /*----------------------------*/
 /* PMC : PROFIBUS function    */
@@ -14542,12 +13735,6 @@ FWLIBAPI short WINAPI eth_rddsm198host( unsigned short, short, short *, char * )
 /* write m198 host number for dataserver function */
 FWLIBAPI short WINAPI eth_wrdsm198host( unsigned short, short, short, char * );
 
-/* read m198 host number for embedded ethernet function */
-FWLIBAPI short WINAPI eth_rdembm198host( unsigned short, short, short *, char * );
-
-/* write m198 host number for embedded ethernet function */
-FWLIBAPI short WINAPI eth_wrembm198host( unsigned short, short, short, char * );
-
 /* read ATA card format type */
 FWLIBAPI short WINAPI eth_rddsformat( unsigned short, short * );
 
@@ -14689,18 +13876,6 @@ FWLIBAPI short WINAPI eth_eipsedsout2( unsigned short, short, char * );
 /* sort IP Address for EtherNet/IP Scanner funtion */
 FWLIBAPI short WINAPI eth_eipsparamsort( unsigned short, short );
 
-/* read maintenance information for EtherNet/IP Safety Adapter funtion */
-FWLIBAPI short WINAPI eth_rdeipsafmntinfo( unsigned short, OUT_ADPSAFE_MNTINFO * );
-
-/* make Safety Dump Error file for EtherNet/IP Safety Adapter funtion */
-FWLIBAPI short WINAPI eth_eipsafdumperror( unsigned short, char * );
-
-/* make XML file for EtherNet/IP EDA funtion */
-FWLIBAPI short WINAPI eth_edaxmlout( unsigned short, short, char * );
-
-/* read type for network function */
-FWLIBAPI short WINAPI net_rdtype(unsigned short, short, OUT_NETDEVPRM *);
-
 /* get DNC operation file */
 FWLIBAPI short WINAPI cnc_rddsdncfile( unsigned short, char *, short *, char * );
 
@@ -14787,12 +13962,6 @@ FWLIBAPI short WINAPI cnc_dswrite(unsigned short, long*, char*);
 
 /* Data server file write close */
 FWLIBAPI short WINAPI cnc_dswrclose(unsigned short);
-
-/* start reading file list infomation */
-FWLIBAPI short WINAPI cnc_dsfile_req( unsigned short, char *, ODB_IN_DSFILE_REQ * );
-
-/* read file transport result for reading file list infomation */
-FWLIBAPI short WINAPI cnc_dsstat_rdfile( unsigned short, char *, ODB_IN_STAT_DSFILE *, OUT_DSINFO *, OUT_DSFILE * );
 
 /*----------------------------*/
 /* NET : PROFIBUS function    */
@@ -15053,30 +14222,6 @@ FWLIBAPI short WINAPI pnd_rdmode( unsigned short, unsigned char * );
 
 /* write mode for PROFINET IO Device funtion */
 FWLIBAPI short WINAPI pnd_wrmode( unsigned short, unsigned char );
-
-/* make Safety Mainte information file for PROFINET IO Device Safety function  */
-FWLIBAPI short WINAPI pnd_outsafemntinfo( unsigned short, char * );
-
-/* read parameter for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_rdparam(unsigned short, OUT_PNC_PARAM *);
-
-/* write parameter for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_wrparam(unsigned short, IN_PNC_PARAM *);
-
-/* read maintenance information for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_rdmntinfo(unsigned short, short, OUT_PNC_CNTRLR_INFO *, OUT_PNC_DEVICE_INFO *, OUT_PNC_ALLCOM_STAT *);
-
-/* request maintenance information for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_reqdetailinfo(unsigned short, short, short, char *);
-
-/* response maintenance information for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_resdetailinfo(unsigned short, short, short, OUT_PNC_DETAIL_INFO *);
-
-/* read mode for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_rdmode(unsigned short, unsigned char *);
-
-/* write mode for PROFINET IO Controller funtion */
-FWLIBAPI short WINAPI pnc_wrmode(unsigned short, unsigned char);
 
 /*-----------------------------------*/
 /* NET : EtherCAT function           */
@@ -15467,9 +14612,6 @@ FWLIBAPI short WINAPI cnc_rstrt_setsuppress(unsigned short, short,short);
 FWLIBAPI short WINAPI cnc_rstrt_rdpntlist2(unsigned short, short, short *, ODBRSTLIST2 *);
 FWLIBAPI short WINAPI cnc_rstrt_rdpnt2(unsigned short, short, IODBRSTINFO2 *);
 FWLIBAPI short WINAPI cnc_rstrt_wrpnt2(unsigned short, unsigned short, IODBRSTINFO2 *);
-FWLIBAPI short WINAPI cnc_rstrt_getdncprg(unsigned short, short, char *);
-FWLIBAPI short WINAPI cnc_rstrt_rdaddinfo(unsigned short, short, short *, short, long *);
-FWLIBAPI short WINAPI cnc_rstrt_rdlpmppnt(unsigned short, short, ODBRSTMPINFO *);
 /*---------------------*/
 /* spindle unit offset */
 /*---------------------*/
@@ -15619,15 +14761,6 @@ FWLIBAPI short WINAPI cnc_robo_wrselectedsignals(unsigned short, unsigned short,
 /* read selected signals*/
 FWLIBAPI short WINAPI cnc_robo_rdselectedsignals(unsigned short, unsigned short, unsigned short*,IODBRBSUMMARY *);
 
-/* read robot signal status*/
-FWLIBAPI short WINAPI cnc_robo_rdsignals2(unsigned short, char, char, unsigned short, unsigned short *, IODBRBSIGNAL2 *);
-/* write robot signal status*/
-FWLIBAPI short WINAPI cnc_robo_wrsignals2(unsigned short, char, unsigned short, unsigned short, IODBRBSIGNAL2 *);
-/* clear robot signal status*/
-FWLIBAPI short WINAPI cnc_robo_clrsignals(unsigned short);
-/* read property at power-on*/
-FWLIBAPI short WINAPI cnc_robo_rdponprop(unsigned short, unsigned char *);
-
 /*------------------------------*/
 /* T-code Message Read Function */
 /*------------------------------*/
@@ -15715,13 +14848,11 @@ FWLIBAPI short WINAPI cnc_msr_start_sample(unsigned short h);
 FWLIBAPI short WINAPI cnc_msr_rdhis_allnum(unsigned short h,short *his_num);
 FWLIBAPI short WINAPI cnc_msr_rdhis_inf(unsigned short h, short st_no, short *num, ODBMSRHSTINF *hstinf);
 FWLIBAPI short WINAPI cnc_msr_rdhis_msudat(unsigned short h, short hst_no, short msu_no, ODBMSUDAT *msudat);
-FWLIBAPI short WINAPI cnc_msr_rdhis_pmc_ex(unsigned short FlibHndl,short hst_no, short expmcsgnl_no, ODBEXPMCSGNL *expmcsgnl);
 FWLIBAPI short WINAPI cnc_msr_rdhis_pmc(unsigned short h, short hst_no, ODBMSRPMCSGNL *pmcsgnl);
 FWLIBAPI short WINAPI cnc_msr_rdhis_ncdat(unsigned short h, short hst_no, short path_no, ODBMSRNCDAT *ncdat);
 FWLIBAPI short WINAPI cnc_msr_delhis_all(unsigned short h);
 FWLIBAPI short WINAPI cnc_msr_rdmon_msunum(unsigned short h, short *msu_num);
 FWLIBAPI short WINAPI cnc_msr_rdmon_msudat(unsigned short h, short msu_no, ODBMSUDAT *msudat);
-FWLIBAPI short WINAPI cnc_msr_rdmon_pmcinf_ex(unsigned short FlibHndl,short expmcsgnl_no, ODBEXPMCSGNL *expmcsgnl);
 FWLIBAPI short WINAPI cnc_msr_rdmon_pmcinf(unsigned short h, ODBMSRPMCSGNL *pmcsgnl);
 FWLIBAPI short WINAPI cnc_msr_rdhis_ohisnum(unsigned short h, short hst_no, unsigned short *num);
 FWLIBAPI short WINAPI cnc_msr_rdhis_ohisrec(unsigned short h, short hst_no, unsigned short st_no, unsigned short *ed_no,
@@ -15742,8 +14873,6 @@ FWLIBAPI short WINAPI cnc_powc_rd_history(unsigned short h, short unit, short *n
 /* Power Consumption Monitor	*/
 /*------------------------------*/
 FWLIBAPI short WINAPI cnc_pwcm_clear_consump(unsigned short h);
-/* read power consumption */
-FWLIBAPI short WINAPI cnc_pwcm_rd_consump(unsigned short FlibHndl, short type, ODBPWCMDAT *power);
 
 /*-------------------------*/
 /* LASER                   */
@@ -15778,13 +14907,6 @@ FWLIBAPI short WINAPI cnc_rdlalmhistry( unsigned short, unsigned short , unsigne
 FWLIBAPI short WINAPI cnc_rduvactpt2( unsigned short, ODBUVMCRPT2 * );
 /* read nozzle tip machine position */
 FWLIBAPI short WINAPI cnc_rdlnzlmcn( unsigned short, short, short, ODBAXIS * ) ;
-/*$ read fiber data $*/
-FWLIBAPI short WINAPI cnc_rdlfiberdata(unsigned short, short, short, short *, long *) ;
-/*----------------------------------*/
-/* cut condition customize function */
-/*----------------------------------*/
-FWLIBAPI short WINAPI cnc_lctcdcstm(unsigned short , unsigned short , unsigned short , unsigned char *, unsigned char *) ;
-FWLIBAPI short WINAPI cnc_rdlcstmname(unsigned short , unsigned short , unsigned short , unsigned char *, unsigned char *) ;
 /*---------------------------------------*/
 /* read/write punchpress tool data       */
 /*---------------------------------------*/
@@ -15796,7 +14918,6 @@ FWLIBAPI short WINAPI cnc_rd2punchtl_ex( unsigned short, IODBPUNCH2_EX *) ;
 /* Tilted Working Plane Command          */
 /*---------------------------------------*/
 FWLIBAPI short WINAPI cnc_twp_rdfcoord(unsigned short, char, ODBCOORD *); 
-FWLIBAPI short WINAPI cnc_twp_rdfmt_mtrx(unsigned short, short, IDBTWPFORM *, ODBFTRMTX *);
 
 /*---------------------------------------*/
 /* Machining Condition Setting           */
@@ -15836,26 +14957,6 @@ FWLIBAPI short WINAPI cnc_rd_hm_execprog(unsigned short, unsigned short *, char 
 
 FWLIBAPI short WINAPI cnc_rdprgrmupdtcnt(unsigned short, unsigned long*);
 
-/*---------------------------------------------------*/
-/* Teach Program Function (PMi-A only)               */
-/*---------------------------------------------------*/
-FWLIBAPI short WINAPI cnc_tprog_rdprg_by_num( unsigned short, long *, long, long, ODBTPAPRG *);
-FWLIBAPI short WINAPI cnc_tprog_rdprg_by_name( unsigned short, long *, char *, long, ODBTPAPRG *);
-FWLIBAPI short WINAPI cnc_tprog_wrinfo( unsigned short, short, char *, IDBTPINFO *);
-FWLIBAPI short WINAPI cnc_tprog_rdcmd( unsigned short, char *, long, long, ODBTPEDTCMD *);
-FWLIBAPI short WINAPI cnc_tprog_editcmd( unsigned short, char *, long , long, IDBTPCMD *);
-FWLIBAPI short WINAPI cnc_tprog_rdline( unsigned short, char *, long, char *, unsigned long *, unsigned long *);
-FWLIBAPI short WINAPI cnc_tprog_st_convert(unsigned short, short, short) ;
-FWLIBAPI short WINAPI cnc_tprog_convert_stat(unsigned short, long *, long *, long *, short *, short *) ;
-FWLIBAPI short WINAPI cnc_tprog_rdpos( unsigned short, char *, unsigned short, unsigned short *, long *);
-FWLIBAPI short WINAPI cnc_tprog_wrpos( unsigned short, char *, unsigned short, unsigned short *, long *);
-
-/*---------------------------------------------------*/
-/* Electric Cam Data SRAM Use (PMi-A only)           */
-/*---------------------------------------------------*/
-FWLIBAPI short WINAPI cnc_rdecamdatar(unsigned short, unsigned long, unsigned long *, long *);
-FWLIBAPI short WINAPI cnc_wrecamdatar(unsigned short, unsigned long, unsigned long *, long *);
-
 /*---------------------------------------*/
 /*   PDSA Pulse Input Diag               */
 /*---------------------------------------*/
@@ -15889,111 +14990,6 @@ FWLIBAPI short WINAPI anm_simustop(unsigned short);
 FWLIBAPI short WINAPI anm_simuproc(unsigned short);
 FWLIBAPI short WINAPI anm_simusngl(unsigned short);
 FWLIBAPI short WINAPI anm_rdsimuelm(unsigned short, IODBSIMUELM *);
-FWLIBAPI short WINAPI anm_rdsimuelm2(unsigned short, IODBSIMUELM2 *);
-#endif
-
-/*----------------*/
-/* Block distance */
-/*----------------*/
-FWLIBAPI short WINAPI cnc_rdblkdist(unsigned short, REALDATA *);
-
-FWLIBAPI short WINAPI cnc_reqsvgtung( unsigned short, short, short, ODBTUNREQ * ) ;
-FWLIBAPI short WINAPI cnc_stopsvgtung( unsigned short ) ;
-FWLIBAPI short WINAPI cnc_rdsvgtungstat( unsigned short, short, short, ODBTUNSTAT * ) ;
-
-/*------------------------*/
-/* Reducing Cycle Time    */
-/*------------------------*/
-FWLIBAPI short WINAPI cnc_rct_rdCtgInfo(unsigned short, unsigned short, unsigned short*, unsigned short* );
-FWLIBAPI short WINAPI cnc_rct_rdItem   (unsigned short, unsigned short, IODBRCT_ITEM* );
-FWLIBAPI short WINAPI cnc_rct_wrItem   (unsigned short, unsigned short, IODBRCT_ITEM* );
-FWLIBAPI short WINAPI cnc_rct_wrRecom  (unsigned short, long, short );
-FWLIBAPI short WINAPI cnc_rct_rdRcmAdjst  (unsigned short, short, short*, short*, short* );
-FWLIBAPI short WINAPI cnc_rct_wrRcmAdjst  (unsigned short, short, short );
-FWLIBAPI short WINAPI cnc_rct_wrOvLp   (unsigned short, short, short );
-FWLIBAPI short WINAPI cnc_rct_cpSlctPtn(unsigned short, long, unsigned short, unsigned short );
-FWLIBAPI short WINAPI cnc_rct_rdGrpName(unsigned short, unsigned short, IODBRCT_CSTMNAME* );
-FWLIBAPI short WINAPI cnc_rct_wrGrpName(unsigned short, unsigned short, IODBRCT_CSTMNAME* );
-FWLIBAPI short WINAPI cnc_rct_rdPtnSlct(unsigned short, unsigned short, IODBRCT_GRPPTN* );
-FWLIBAPI short WINAPI cnc_rct_wrPtnSlct(unsigned short, unsigned short, IODBRCT_GRPPTN* );
-FWLIBAPI short WINAPI cnc_rct_rdslctptnname(unsigned short, ODBRCT_SLCTPTNNAME* );
-FWLIBAPI short WINAPI cnc_rct_rdptnadjst(unsigned short, short, short*, short*, short*);
-FWLIBAPI short WINAPI cnc_rct_wrptnadjst(unsigned short, short, short*);
-FWLIBAPI short WINAPI cnc_rct_rdtunemoni(unsigned short, short, short*, short*);
-
-/*---------------------------------------*/
-/*   Pressure position control           */
-/*---------------------------------------*/
-FWLIBAPI short WINAPI cnc_rdpressure(unsigned short, short, short *, ODBPRESSURE *);
-
-/*------------------------*/
-/*   Position (ExDigit)   */
-/*------------------------*/
-FWLIBAPI short WINAPI cnc_absolute2_exdgt(unsigned short FlibHndl, ODBEXPOS *axis_data);
-FWLIBAPI short WINAPI cnc_machine_exdgt(unsigned short FlibHndl, ODBEXPOS *axis_data);
-FWLIBAPI short WINAPI cnc_relative2_exdgt(unsigned short FlibHndl, ODBEXPOS *axis_data);
-FWLIBAPI short WINAPI cnc_distance_exdgt(unsigned short FlibHndl, ODBEXPOS *axis_data);
-
-/*------------------------------*/
-/* Scroll Waiting Mcode Setting */
-/*------------------------------*/
-FWLIBAPI short WINAPI cnc_wr_scrlwaitmcode ( unsigned short, short, short*, IODBWAITMCODE* );
-FWLIBAPI short WINAPI cnc_rd_scrlwaitmcode ( unsigned short, short, short*, IODBWAITMCODE* );
-FWLIBAPI short WINAPI cnc_del_scrlwaitmcode( unsigned short );
-
-/*------------------------*/
-/* Smart Adaptive control */
-/*------------------------*/
-FWLIBAPI short WINAPI cnc_rdsoc_curdat(unsigned short, short, ODBSOCCUR* );
-FWLIBAPI short WINAPI cnc_rdsoc_wave_start(unsigned short, short );
-FWLIBAPI short WINAPI cnc_rdsoc_wave(unsigned short, long*, unsigned short* );
-FWLIBAPI short WINAPI cnc_rdsoc_wave_end(unsigned short );
-FWLIBAPI short WINAPI cnc_soc_wave_setchnl(unsigned short, short* );
-FWLIBAPI short WINAPI cnc_rdsoc_tlatrr ( unsigned short, short, short*, short, short*, short*, short*, ODBSOCTLATTR* );
-FWLIBAPI short WINAPI cnc_rdsoc_tldat  ( unsigned short, short, short*, short, short*, char, IODBSOCTLDAT* );
-FWLIBAPI short WINAPI cnc_wrsoc_tldat  ( unsigned short, short, short*, short, short*, IODBSOCTLDAT* );
-	
-/*-------------------*/
-/* PMC Ladder screen */
-/*-------------------*/
-typedef struct tag_PMCLAD_COIL_ADDRESS
-{
-    int pmc;
-    int program;
-    int type;
-    int offset;
-    int bit;
-    int _reserved;
-} PMCLAD_COIL_ADDRESS;
-
-typedef struct tag_PMCLAD_COIL_STRING
-{
-    int pmc;
-    int program;
-    char * string;
-    int _reserved;
-} PMCLAD_COIL_STRING;
-
-typedef struct tag_PMCLAD_MESSAGE
-{
-    const char * message;
-    int lines;
-    int color_fg;
-    int color_bg;
-} PMCLAD_MESSAGE;
-
-FWLIBAPI short WINAPI cnc_pmclad_screen(unsigned short FwHndl, int iCommand, void * pParam, PMCLAD_MESSAGE *pstMessage);
-
-#ifndef CNC_PPC
-typedef struct odbdllversion {
-	struct {
-		char Name[260];
-		char FileVersion[32];
-		char ProductVersion[32];
-	} dll[2];
-} ODBDLLVERSION;
-
-FWLIBAPI short WINAPI cnc_getdllversion( unsigned short FwHndl, ODBDLLVERSION *vers );
 #endif
 
 /*---------------------------------------*/
@@ -16033,10 +15029,6 @@ FWLIBAPI short WINAPI cnc_exitthread();
 
 
 #ifdef __cplusplus
-} // namespace Fwlib32
-
-using namespace Fwlib32;
-
 }
 #endif
 

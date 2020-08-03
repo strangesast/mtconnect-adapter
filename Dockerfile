@@ -1,11 +1,8 @@
 from debian as base
 
-arg TARGETPLATFORM
-# irritatingly necessary when not using buildx?
-env TARGETPLATFORM=$TARGETPLATFORM
-run apt-get update && apt-get install -y libc6-dev
-copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
-run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
+run dpkg --add-architecture i386 && apt-get update && apt-get install -y gcc-multilib g++-multilib libc6-dev libc6-dev:i386 gettext-base netcat
+copy fanuc/libfwlib32.so.1.0.0 /usr/local/lib/
+run ln -s /usr/local/lib/libfwlib32.so.1.0.0 /usr/local/lib/libfwlib32.so && ldconfig
 
 from base as builder
 workdir /adapter
@@ -14,6 +11,8 @@ copy . .
 run mkdir build && cd build && cmake .. && make
 
 from base
-run mkdir -p /var/log/adapter
+volume /var/log/adapter
 copy --from=builder /adapter/build/fanuc/adapter_fanuc /adapter_fanuc
-cmd ["/adapter_fanuc", "--help"]
+copy fanuc/default.ini healthcheck.sh entrypoint.sh /
+healthcheck cmd /healthcheck.sh
+entrypoint /entrypoint.sh
