@@ -1,1 +1,3 @@
 Dockerfile
+debug.Dockerfile
+docker-compose.yml

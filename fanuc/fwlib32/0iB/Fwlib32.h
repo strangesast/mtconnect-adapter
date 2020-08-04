@@ -16148,14 +16148,22 @@ FWLIBAPI short WINAPI cnc_pmclad_screen(unsigned short FwHndl, int iCommand, voi
 #ifndef CNC_PPC
 typedef struct odbdllversion {
 	struct {
-		TCHAR Name[260];
-		TCHAR FileVersion[32];
-		TCHAR ProductVersion[32];
+		char Name[260];
+		char FileVersion[32];
+		char ProductVersion[32];
 	} dll[2];
 } ODBDLLVERSION;
 
 FWLIBAPI short WINAPI cnc_getdllversion( unsigned short FwHndl, ODBDLLVERSION *vers );
 #endif
+
+/*---------------------------------------*/
+/* Linux process and thread              */
+/*---------------------------------------*/
+FWLIBAPI short WINAPI cnc_startupprocess(long, const char *);
+FWLIBAPI short WINAPI cnc_exitprocess();
+FWLIBAPI short WINAPI cnc_exitthread();
+
 
 /*--------------------------*/
 /* Parsonal  Authentication */

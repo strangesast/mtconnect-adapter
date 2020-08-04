@@ -6,7 +6,7 @@ arg VERSION
 env TARGETPLATFORM=$TARGETPLATFORM
 env VERSION=$VERSION
 
-run apt-get update && apt-get install -y libc6-dev gettext-base netcat
+run dpkg --add-architecture i386 && apt-get update && apt-get install -y gcc-multilib g++-multilib libc6-dev libc6-dev:i386 gettext-base netcat
 copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.${VERSION} /usr/local/lib/
 run ln -s /usr/local/lib/libfwlib32.so.${VERSION} /usr/local/lib/libfwlib32.so && ldconfig
 
