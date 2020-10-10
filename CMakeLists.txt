@@ -4,5 +4,3 @@ project (adapter_fanuc)
 add_subdirectory (./src)
 add_subdirectory (./fanuc)
 add_subdirectory (./minIni_07)
-
-

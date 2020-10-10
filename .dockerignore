@@ -1,3 +1,3 @@
-Dockerfile
-debug.Dockerfile
+build/
 docker-compose.yml
+docker/

@@ -1,0 +1,3 @@
+[submodule "fanuc/fwlib"]
+	path = fanuc/fwlib
+	url = https://github.com/strangesast/fwlib
