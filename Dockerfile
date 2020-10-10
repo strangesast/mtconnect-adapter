@@ -1,26 +1,35 @@
-from debian as base
+from debian:buster-slim as base
 
 # can't use default value with buildx
 arg TARGETPLATFORM
-
-# when using default builder:
-arg TARGETPLATFORM=linux/amd64
+arg VERSION=1.0.5
 env TARGETPLATFORM=$TARGETPLATFORM
+env VERSION=$VERSION
 
-run apt-get update && apt-get install -y libc6-dev gettext-base netcat
-run echo $TARGETPLATFORM
-copy fanuc/fwlib32/${TARGETPLATFORM}/libfwlib32.so.1.0.5 /usr/local/lib/
-run ln -s /usr/local/lib/libfwlib32.so.1.0.5 /usr/local/lib/libfwlib32.so && ldconfig
+run apt-get update && apt-get -y install gettext-base && apt-get clean
+copy scripts/install-fwlib32.sh fanuc/fwlib/libfwlib32* fanuc/fwlib/fwlib32.h /tmp/
+run cd /tmp/ && ./install-fwlib32.sh
 
 from base as builder
-workdir /adapter
-run apt-get install -y g++ cmake
+
+workdir /usr/src/mtconnect-adapter
+
+copy scripts/install-deps.sh /tmp/
+run /tmp/install-deps.sh
+
 copy . . 
-run mkdir build && cd build && cmake .. && make
+run mkdir build && \
+  cd build && \
+  cmake .. && \
+  make
 
 from base
+
+workdir /adapter
 volume /var/log/adapter
-copy --from=builder /adapter/build/fanuc/adapter_fanuc /adapter_fanuc
-copy fanuc/default.ini healthcheck.sh entrypoint.sh /
-healthcheck cmd /healthcheck.sh
-entrypoint /entrypoint.sh
+copy --from=builder /usr/src/mtconnect-adapter/build/fanuc/adapter_fanuc /usr/local/bin/adapter_fanuc
+copy ./fanuc/default.ini ./scripts/healthcheck.sh ./scripts/entrypoint.sh ./
+
+volume /var/log/adapter
+healthcheck cmd /adapter/healthcheck.sh
+entrypoint /adapter/entrypoint.sh

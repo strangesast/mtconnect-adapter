@@ -1,12 +1,15 @@
 version: '3.7'
 services:
   adapter:
+    image: strangesast/mtconnect-adapter
+    network_mode: host
+    ports:
+      - "7878:7878"
     build:
-      args:
-        TARGETPLATFORM: linux/amd64
       context: .
-      dockerfile: Dockerfile
+      args:
+        VERSION: 1.0.5
+        TARGETPLATFORM: linux/amd64
     environment:
-      - TARGETPLATFORM=linux/amd64
-    volumes:
-      - ./fanuc/adapter.ini:/adapter.ini
+      - FOCAS_SERVICE_NAME=fanuc
+      - FOCAS_HOST=127.0.0.1
