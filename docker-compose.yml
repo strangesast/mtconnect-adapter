@@ -1,35 +1,15 @@
 version: '3.7'
 services:
-  debug:
-    restart: always
-    build:
-      context: .
-      dockerfile: debug.Dockerfile
-#  adapter:
-#    image: strangesast/mtconnect-adapter
-#    environment:
-#      - FOCAS_SERVICE_NAME=doosan-2600sy
-#      - FOCAS_HOST=10.0.0.208
-##      - FOCAS_SERVICE_NAME=samsung-sl45
-##      - FOCAS_HOST=10.0.0.207
-#    build:
-#      args:
-#        VERSION: 1.0.5
-#        CONTROLLER: 30i
-#        TARGETPLATFORM: linux/amd64
-#      context: .
-#      dockerfile: Dockerfile
   adapter:
     image: strangesast/mtconnect-adapter
-    environment:
-#      - FOCAS_SERVICE_NAME=doosan-2600sy
-#      - FOCAS_HOST=10.0.0.208
-      - FOCAS_SERVICE_NAME=samsung-sl45
-      - FOCAS_HOST=10.0.0.207
+    network_mode: host
+    ports:
+      - "7878:7878"
     build:
+      context: .
       args:
         VERSION: 1.0.5
-        CONTROLLER: 30i
-        TARGETPLATFORM: linux/386
-      context: .
-      dockerfile: 386.Dockerfile
+        TARGETPLATFORM: linux/amd64
+    environment:
+      - FOCAS_SERVICE_NAME=fanuc
+      - FOCAS_HOST=127.0.0.1
