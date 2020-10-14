@@ -395,7 +395,7 @@ bool FanucPath::getHeader(unsigned short aFlibhndl, int aProg)
         bool nl = false;
         program[len] = '\0';
         int lineCount = 0;
-        for (char *cp = program; *cp != '\0' && lineCount < 5; ++cp)
+        for (char *cp = program; *cp != '\0'; ++cp)
         {
           //printf("%d ", *cp);
           // When we get a new line, check for the first empty line
@@ -405,8 +405,7 @@ bool FanucPath::getHeader(unsigned short aFlibhndl, int aProg)
           if (*cp == '\n') 
           {
             char f = *(cp + 1);
-            if (lineCount > 0 && f != '(')
-            {
+            if (lineCount > 0 && f != '(' && f != '\n' && f != ' ' && f != '#') {
               *cp = '\0';
               break;
             }
