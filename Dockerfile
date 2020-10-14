@@ -1,21 +1,11 @@
-from debian:buster-slim as base
-
-# can't use default value with buildx
-arg TARGETPLATFORM
-arg VERSION=1.0.5
-env TARGETPLATFORM=$TARGETPLATFORM
-env VERSION=$VERSION
-
-run apt-get update && apt-get -y install gettext-base && apt-get clean
-copy scripts/install-fwlib32.sh fanuc/fwlib/libfwlib32* fanuc/fwlib/fwlib32.h /tmp/
-run cd /tmp/ && ./install-fwlib32.sh
+from strangesast/fwlib as base
 
 from base as builder
 
 workdir /usr/src/mtconnect-adapter
 
-copy scripts/install-deps.sh /tmp/
-run /tmp/install-deps.sh
+copy fanuc/fwlib/build-deps.sh /tmp/
+run /tmp/build-deps.sh
 
 copy . . 
 run mkdir build && \
@@ -24,6 +14,9 @@ run mkdir build && \
   make
 
 from base
+
+# necessary for envsubst used in entrypoint
+run apt-get update && apt-get -y install gettext-base && apt-get clean
 
 workdir /adapter
 volume /var/log/adapter

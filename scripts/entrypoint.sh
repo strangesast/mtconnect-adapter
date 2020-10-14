@@ -1,6 +1,6 @@
 #!/bin/sh
-FOCAS_SERVICE_NAME="${FOCAS_SERVICE_NAME:-fanuc}"
-FOCAS_HOST="${FOCAS_HOST:-localhost}"
+export FOCAS_SERVICE_NAME="${FOCAS_SERVICE_NAME:-fanuc}"
+export FOCAS_HOST="${FOCAS_HOST:-localhost}"
 adapter_config=$(pwd)/$FOCAS_SERVICE_NAME.ini
 if [ ! -f $adapter_config ]; then
 	envsubst < default.ini > $adapter_config
